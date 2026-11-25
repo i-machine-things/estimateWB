@@ -1,122 +1,132 @@
-import os
+from .resources import materials, LANG
+from . import estimateSettings
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
-import json
-import FreeCAD, FreeCADGui
+
+import FreeCAD
+import FreeCADGui
 from PySide import QtGui
-from . import LANGUAGEPATH, ICONPATH
 
-# supported materials. dependence with command-icons. name:density
+################################################################################
+# reporting
+################################################################################
 
-with open(os.path.join(ICONPATH, 'materials.json'), 'r') as jsonfile:
-		materials= json.loads(jsonfile.read().replace('\n', ''))
-CURRENTSCALE="cm"
-
-CURRENTUNIT="g"
-
-UNITSCALER = 1; # Defaults to grams
-
-def saveToClipboard(textToSave):
-	QtGui.QGuiApplication.clipboard().setText(textToSave)
-
-def report(msg):
+def report(msg: str):
+	""" prints the message to the report view panel """
 	now = datetime.now().strftime("%H:%M:%S")
 	FreeCAD.Console.PrintMessage(f"\n{now} {msg}")
 
-def roundup(number):
+
+def msgbox(title: str, msg: str, copy: str):
+	""" displays the result as a popup with option to copy a value """
+
+	# Not sure this is the best way to report stuff in FreeCAD, not a whole lot of things open a new window. I just hate having to try and read
+	# the report view for each result. - zackwhit
+	msgBox = QtGui.QMessageBox() 
+	msgBox.setIcon(QtGui.QMessageBox.Information)
+	msgBox.setWindowTitle(title)
+	msgBox.setText(msg)
+	msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
+
+	# Adding the result to the clipboard
+	copyBtn = QtGui.QPushButton(LANG.chunk("resultWeightPopCopy"))
+	copyBtn.clicked.connect(lambda: saveToClipboard(copy))
+	msgBox.addButton(copyBtn, QtGui.QMessageBox.AcceptRole)
+	
+	# Show result message box
+	msgBox.exec()
+
+
+def saveToClipboard(textToSave: str):
+	"""	copies the parameter to clipboard """
+	QtGui.QGuiApplication.clipboard().setText(textToSave)
+
+
+################################################################################
+# calculations
+################################################################################
+
+def roundup(number: float):
+	""" returns the rounded number according to FreeCad settings"""
 	precision = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Units").GetInt("Decimals")
 	precision = 2 if not precision else precision
 	return Decimal(number).quantize(Decimal("1e" + str(-precision)), rounding = ROUND_HALF_UP)
 
-def volumeOf(name):
-	t = FreeCAD.ActiveDocument.getObjectsByLabel(name)[0]
-	if hasattr(t, 'Shape'):
-		return t.Shape.Volume
-	else:
-		report(f"{name} {LANG.chunk('hasNoVolume')[0]}")
-		return False
 
-def selectedObject():
-	sel = FreeCADGui.Selection.getSelection()
-	return sel[0].Label if len(sel) else None
+def volumeOf(object: object):
+	""" returns the volume of the passed object """
+	if hasattr(object, "Shape"):
+		return object.Shape.Volume
+	else:
+		report(LANG.chunk("resultHasNoVolume", {":object": object.Label}))
+		return 0.0
+
 
 def estimateVolume(*void):
-	object = selectedObject()
-	volume = volumeOf(object)
-	factor={"mm": 1 , "cm": 1000, "m": 1000000000}
-	if object and volume:
-		volume /= factor[CURRENTSCALE]
-		report(f"{object} {LANG.chunk('hasVolumeOf')[0]} {roundup(volume)} {CURRENTSCALE}³")
-	else:
-		report(LANG.chunk('pleaseSelectPart')[0])
+	""" calculates the volume of selected objects and reports to the selected report option """
+	objects = FreeCADGui.Selection.getSelection()
 
-def estimateWeight(material = None):
-	object = selectedObject()
-	volume = volumeOf(object) / 1000
+	volume = 0.0
+
+	for object in objects:
+		volume += volumeOf(object)
+
+	if volume == 0:
+		if len(objects) > 1 :
+			report(LANG.chunk("resultSelectionNoVolume"))
+		return
+
+	volume /= float(estimateSettings.get("sizeScaleFactor"))
+	
+	msg = LANG.chunk("resultHasVolumeOf", {":volume" : str(roundup(volume)) + estimateSettings.get("sizeScale") + "³"})
+	if estimateSettings.get("reportOutput") == "console":
+		report(msg)
+	elif estimateSettings.get("reportOutput") == "popup":
+		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
+
+
+def estimateWeight(material : str|None = None):
+	"""
+		calculates the weight of the selected objects according to the passed material and reports to the selected report option  
+		prompts for density if no material has been passed
+	"""
+	objects = FreeCADGui.Selection.getSelection()
+
+	volume = 0.0
+
+	for object in objects:
+		volume += volumeOf(object)
+		
+	if volume == 0:
+		if len(objects) > 1 :
+			report(LANG.chunk("resultSelectionNoVolume"))
+		return
+    
 	if material == "None": # even None, if passed, ends up a string here
 		material = None
+	
 	density = None
-	if object and volume:
-		if material:
-			density = materials[material]
-		else:
-			try:
-				density = float(QtGui.QInputDialog.getText(None, LANG.chunk('densityPromptTitle')[0], LANG.chunk('densityPromptText')[0])[0].replace(",", "."))
-			except:
-				pass
-		if not density:
-			report(LANG.chunk('noDensityEntered')[0])
-			return
-		mass = volume * density
-		mass = mass*UNITSCALER
 
-		report(f"{object} {LANG.chunk('needsMaterialOf')[0]} {roundup(mass)} {CURRENTUNIT} {LANG.chunk('needsMaterialOf')[1] + material if material else ''}")
-
-		# Not sure this is the best way to report stuff in FreeCAD, not a whole lot of things open a new window. I just hate having to try and read
-		# the report view for each result. - zackwhit
-		msgBox = QtGui.QMessageBox() 
-		msgBox.setIcon(QtGui.QMessageBox.Information)
-		msgBox.setWindowTitle(LANG.chunk("weightPopTitle")[0])
-		msgBox.setText(f"{object} {LANG.chunk('needsMaterialOf')[0]} {roundup(mass)} {CURRENTUNIT} {LANG.chunk('needsMaterialOf')[1] + material if material else ''}")
-		msgBox.setStandardButtons(QtGui.QMessageBox.Ok)
-
-		# Adding the result to the clipboard
-		copyBtn = QtGui.QPushButton(LANG.chunk("weightPopCopy")[0])
-		copyBtn.clicked.connect(lambda: saveToClipboard(f"{roundup(mass)}"))
-		msgBox.addButton(copyBtn, QtGui.QMessageBox.AcceptRole)
-		
-		# Show result message box
-		msgBox.exec()
-
+	if material:
+		density = materials[material]
 	else:
-		report(LANG.chunk('pleaseSelectPart')[0])
-
-class language:
-	def __init__(self):
 		try:
-			'''load settings'''
-			with open(f'{os.path.join(LANGUAGEPATH, FreeCAD.ParamGet("User parameter:BaseApp/Preferences/General").GetString("Language"))}.json', 'r') as jsonfile:
-				self.language = json.loads(jsonfile.read().replace('\n', ''))
+			density = float(QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"))[0].replace(",", "."))
 		except:
-			with open(f'{os.path.join(LANGUAGEPATH, "English")}.json', 'r') as jsonfile:
-				self.language = json.loads(jsonfile.read().replace('\n', ''))
-	def chunk(self, chunk):
-		return self.language[chunk]
-LANG=language()
+			pass
+	if not density:
+		report(LANG.chunk("promptDensityError"))
+		return
+	
+	# FreeCAD reported volume is always mm³
+	# density is always g/cm³
+	volume /= 1000
+	
+	mass = volume * density
+	mass = mass * float(estimateSettings.get("weightUnitFactor"))
 
-def setScale(to):
-	global CURRENTSCALE
-	CURRENTSCALE=to
-
-def setWeightUnit(weightUnit):
-	global CURRENTUNIT
-	global UNITSCALER
-	CURRENTUNIT = weightUnit
-
-	# this is probably a terrible approach
-	if (weightUnit == "g"):
-		UNITSCALER = 1
-	elif (weightUnit == "kg"):
-		UNITSCALER = 0.001
-	elif (weightUnit == "lb"):
-		UNITSCALER = 0.00220462262185
+	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : str(roundup(mass)) + estimateSettings.get("weightUnit"), ":material": material if material else ""})
+	if estimateSettings.get("reportOutput") == "console":
+		report(msg)
+	elif estimateSettings.get("reportOutput") == "popup":
+		msgbox(LANG.chunk("resultWeightPopTitle"), msg, f"{roundup(mass)}")
