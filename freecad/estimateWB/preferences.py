@@ -2,6 +2,7 @@ from .resources import LANG, getUserMaterials, setUserMaterials
 from . import estimateSettings
 
 import FreeCAD
+from math import isfinite
 from PySide import QtCore, QtGui
 
 
@@ -83,7 +84,7 @@ class EstimatePreferencePage:
 				value = float(density.replace(",", "."))
 			except ValueError:
 				value = 0
-			if not name or value <= 0:
+			if not name or not isfinite(value) or value <= 0:
 				FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialSkipped", {":row": str(row + 1)}) + "\n")
 				continue
 			user[name] = value

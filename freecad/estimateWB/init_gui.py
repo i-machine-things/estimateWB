@@ -70,12 +70,18 @@ def fillMaterialCombo(combo):
 	combo.setCurrentIndex(max(index, 0))
 	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
 	combo.blockSignals(False)
+	# signals were blocked, so record the (possibly changed) pick directly
+	_rememberPick(combo)
 
 
 def refreshMaterialCombo():
 	""" refills the toolbar's material combo, if it has been installed yet """
 	if materialCombo:
-		fillMaterialCombo(materialCombo)
+		try:
+			fillMaterialCombo(materialCombo)
+		except RuntimeError:
+			# the toolbar was rebuilt since, the next workbench activation builds a filled combo
+			pass
 
 
 def _onMaterialActivated(combo, index):

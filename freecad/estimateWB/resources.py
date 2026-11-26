@@ -1,4 +1,5 @@
 from pathlib import Path
+from math import isfinite
 import json
 import FreeCAD
 
@@ -25,7 +26,7 @@ def getUserMaterials():
 	""" returns the user added materials as {name: density in g/cm³} """
 	try:
 		user = json.loads(FreeCAD.ParamGet(PARAMS).GetString("userMaterials") or "{}")
-		return {str(name): float(density) for name, density in user.items() if float(density) > 0}
+		return {str(name): float(density) for name, density in user.items() if isfinite(float(density)) and float(density) > 0}
 	except (ValueError, TypeError, AttributeError):
 		return {}
 
