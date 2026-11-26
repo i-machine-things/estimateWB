@@ -45,6 +45,47 @@ def updateCustomItem(combo):
 		combo.setItemText(index, LANG.chunk("customDensityItem"))
 
 
+def fillMaterialCombo(combo):
+	"""
+		(re)fills the combo with the material list and the custom density entry at the end,
+		keeping the current pick if it still exists. called again after materials are added or
+		removed in the preferences
+	"""
+	from .resources import materials
+	if combo.count():
+		current = combo.currentText() if combo.currentData() != CUSTOM_DENSITY else CUSTOM_DENSITY
+	else:
+		# a new combo, e.g. after a toolbar rebuild: restore the pick from before, if any
+		current = lastPick
+	combo.blockSignals(True)
+	combo.clear()
+	combo.addItems(list(materials.keys()))
+	# custom density lives in the same dropdown, see _onMaterialActivated()
+	combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
+	updateCustomItem(combo)
+	if current is None:
+		index = 0
+	else:
+		index = combo.findData(CUSTOM_DENSITY) if current == CUSTOM_DENSITY else combo.findText(current)
+	combo.setCurrentIndex(max(index, 0))
+	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
+	combo.blockSignals(False)
+	if index < 0:
+		# the picked material was renamed or removed in the preferences, say so instead of
+		# silently calculating with another one
+		from . import tools
+		tools.report(LANG.chunk("materialNoLongerListed", {":material": current, ":fallback": combo.currentText()}))
+	# signals were blocked, so record the (possibly changed) pick directly
+	_rememberPick(combo)
+
+
+def refreshMaterialCombo():
+	""" refills the toolbar's material combo, if it has been installed yet """
+	# comboAlive: if a toolbar rebuild deleted it, the next one installed is filled anyway
+	if comboAlive(materialCombo):
+		fillMaterialCombo(materialCombo)
+
+
 def _onMaterialActivated(combo, index):
 	"""
 		picking the custom density entry (also re-picking it) prompts for the density and saves it,
@@ -65,6 +106,51 @@ def _onMaterialActivated(combo, index):
 	combo.setCurrentIndex(previous if previous is not None else 0)
 
 
+# setting -> (group command name, option values in dropdown order), filled in Initialize()
+settingGroups = {}
+
+
+def _associated(action):
+	"""
+		the widgets an action has been added to. Qt6 (PySide6) replaced associatedWidgets() with
+		associatedObjects(), which returns every associated QObject, not just widgets, hence the
+		isinstance checks where this is used; Qt5 builds only have associatedWidgets()
+	"""
+	if hasattr(action, "associatedObjects"):
+		return action.associatedObjects()
+	return action.associatedWidgets()
+
+
+def syncSettingButton(setting: str):
+	"""
+		shows the option in use on the setting's toolbar dropdown button. FreeCAD only does that itself
+		for picks from the dropdown or the settings menu, not when the option is set otherwise
+		(the separate unit commands from a shortcut or a custom toolbar, or a macro)
+	"""
+	from . import estimateSettings
+	if setting not in settingGroups:
+		return
+	group, values = settingGroups[setting]
+	command = FreeCADGui.Command.get(group)
+	current = estimateSettings.get(setting)
+	if not command or current not in values:
+		return
+	actions = command.getAction()
+	index = values.index(current)
+	if index >= len(actions):
+		return
+	# the group's own action (the toolbar button's) is named after the command. the same as
+	# FreeCAD's ActionGroup::setCheckedAction(): icon and tooltip of the option, and the option
+	# as the group's default, which is what clicking the button itself runs
+	groupAction = FreeCADGui.getMainWindow().findChild(QtGui.QAction, group)
+	if not groupAction:
+		return
+	groupAction.setIcon(actions[index].icon())
+	groupAction.setToolTip(actions[index].toolTip())
+	if groupAction.parent():
+		groupAction.parent().setProperty("defaultAction", index)
+
+
 def _findCalculateButton():
 	"""
 		returns (toolbar, action) of the Estimate_Calculate group button, or (None, None)
@@ -78,14 +164,7 @@ def _findCalculateButton():
 	# prefer the workbench's own toolbar
 	found = []
 	for action in command.getAction():
-		# Qt6 (PySide6) replaced associatedWidgets() with associatedObjects(), which returns
-		# every associated QObject, not just widgets, hence the isinstance checks; Qt5
-		# builds only have associatedWidgets()
-		if hasattr(action, "associatedObjects"):
-			associated = action.associatedObjects()
-		else:
-			associated = action.associatedWidgets()
-		for menu in associated:
+		for menu in _associated(action):
 			if not isinstance(menu, QtGui.QMenu):
 				continue
 			button = menu.parent()
@@ -102,7 +181,6 @@ def _findCalculateButton():
 
 def _installMaterialCombo():
 	global materialCombo
-	from .resources import materials
 
 	# found through FreeCAD's own command manager instead of guessing at Qt object names
 	toolbar, anchor = _findCalculateButton()
@@ -125,15 +203,7 @@ def _installMaterialCombo():
 	combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
 	# the list view picks AlwaysOff while it still assumes popup mode, so set it explicitly
 	combo.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-	combo.addItems(list(materials.keys()))
-	# custom density lives in the same dropdown, see _onMaterialActivated()
-	combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
-	updateCustomItem(combo)
-	# restore the pick from before a toolbar rebuild, if any
-	if lastPick is not None:
-		index = combo.findData(CUSTOM_DENSITY) if lastPick == CUSTOM_DENSITY else combo.findText(lastPick)
-		combo.setCurrentIndex(max(index, 0))
-	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
+	fillMaterialCombo(combo)
 	combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
 	combo.currentIndexChanged.connect(lambda index, c = combo: _rememberPick(c))
 	# inserted right before the calculate button, which reads this combo's
@@ -174,22 +244,31 @@ class estimateWB(FreeCADGui.Workbench):
 
 		# setting commands
 		fn = {
-			"Report_console": commands.Set_estimateSettings("reportOutput", "console"),
-			"Report_popup": commands.Set_estimateSettings("reportOutput", "popup"),
 			"Scale_qmm": commands.Set_estimateSettings("sizeScale", "mm"),
 			"Scale_qcm": commands.Set_estimateSettings("sizeScale", "cm"),
 			"Scale_qm": commands.Set_estimateSettings("sizeScale", "m"),
+			"Scale_qin": commands.Set_estimateSettings("sizeScale", "in"),
+			"Scale_qft": commands.Set_estimateSettings("sizeScale", "ft"),
 			"Weight_g": commands.Set_estimateSettings("weightUnit", "g"),
 			"Weight_kg": commands.Set_estimateSettings("weightUnit", "kg"),
-			"Weight_lb": commands.Set_estimateSettings("weightUnit", "lb")
+			"Weight_lb": commands.Set_estimateSettings("weightUnit", "lb"),
+			"Weight_oz": commands.Set_estimateSettings("weightUnit", "oz")
 		}
-		# TMYK: the first parameter is visible e.g as the menu entry, second parameter is a list of the assigned commands names
-		# you could as well assign a manual list as second parameter
-		self.appendToolbar(LANG.chunk("settingsMenuText"), list(fn.keys()))
-		self.appendMenu(LANG.chunk("settingsMenuText"), list(fn.keys()))
 		# you could as well add every command linewise, with the first parameter being the assigned command name, the second the respective function call
 		for type in fn:
 			FreeCADGui.addCommand(type, fn[type])
+		# the toolbar bundles the options of each setting into one dropdown button
+		groups = {}
+		for setting, group in (("sizeScale", "Settings_VolumeUnit"), ("weightUnit", "Settings_WeightUnit")):
+			options = {name: command.fnParams[1] for name, command in fn.items() if command.fnParams[0] == setting}
+			FreeCADGui.addCommand(group, commands.Settings_Group(setting, options))
+			groups[group] = options
+			settingGroups[setting] = (group, list(options.values()))
+		# TMYK: the first parameter is visible e.g as the menu entry, second parameter is a list of the assigned commands names
+		# you could as well assign a manual list as second parameter
+		self.appendToolbar(LANG.chunk("settingsMenuText"), list(groups.keys()))
+		# the groups again, as submenus: picks there go through the group, so its toolbar button follows
+		self.appendMenu(LANG.chunk("settingsMenuText"), list(groups.keys()))
 
 		# estimate commands
 		# TMYK: but assigning like this is actually cool, because it is dynamically extendable
@@ -224,5 +303,12 @@ class estimateWB(FreeCADGui.Workbench):
 	def GetClassName(self): 
 		return "Gui::PythonWorkbench"
 
+
+# workbench settings in Edit > Preferences > Estimate
+# the dialog looks the group icon up as "preferences-estimate" in FreeCAD's icon paths
+import os
+FreeCADGui.addIconPath(os.path.dirname(icon("preferences-estimate")))
+from .preferences import EstimatePreferencePage
+FreeCADGui.addPreferencePage(EstimatePreferencePage, "Estimate")
 
 FreeCADGui.addWorkbench(estimateWB())

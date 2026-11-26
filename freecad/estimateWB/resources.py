@@ -1,4 +1,5 @@
 from pathlib import Path
+from math import isfinite
 import json
 import FreeCAD
 
@@ -15,9 +16,50 @@ def icon(name: str):
 
 
 with open(resourcefiles / "materials.json", "r", encoding="utf-8") as jsonfile:
-	""" preparing the material list with names and densities """
-	materials = json.loads(jsonfile.read().replace("\n", ""))
+	""" the built-in material list with names and densities in g/cm³ """
+	baseMaterials = json.loads(jsonfile.read().replace("\n", ""))
 
+# user added materials are stored as a json object {name: density} in the workbench preferences
+PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
+
+def getUserMaterials():
+	"""
+		returns the user added materials as {name: density in g/cm³}
+		entries that aren't usable are skipped one by one, so one bad entry doesn't lose the others
+	"""
+	try:
+		user = json.loads(FreeCAD.ParamGet(PARAMS).GetString("userMaterials") or "{}")
+	except ValueError:
+		user = None
+	if not isinstance(user, dict):
+		FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialsUnreadable") + "\n")
+		return {}
+	materials = {}
+	for name, density in user.items():
+		try:
+			density = float(density)
+		except (ValueError, TypeError):
+			density = 0.0
+		# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+		if isfinite(density) and density > 0:
+			materials[str(name)] = density
+		else:
+			FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialIgnored", {":name": str(name)}) + "\n")
+	return materials
+
+def setUserMaterials(user: dict):
+	""" stores the user added materials and updates the material list """
+	FreeCAD.ParamGet(PARAMS).SetString("userMaterials", json.dumps(user))
+	reloadMaterials()
+
+def reloadMaterials():
+	"""
+		rebuilds the material list in place (other modules hold a reference to it):
+		built-in materials first, then user materials, which override built-ins of the same name
+	"""
+	materials.clear()
+	materials.update(baseMaterials)
+	materials.update(getUserMaterials())
 
 class language:
 	def __init__(self):
@@ -44,3 +86,6 @@ class language:
 		return chunk
 
 LANG = language()
+
+materials = {}
+reloadMaterials()

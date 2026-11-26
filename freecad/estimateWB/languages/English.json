@@ -2,9 +2,10 @@
     "wbToolTip": "Display a body's volume or weight to estimate costs of printing",
 
     "settingsMenuText": "Estimate Settings",
-    "reportOutput_Setting": "Toggle output to :option",
     "sizeScale_Setting": "Display volume in :option³",
     "weightUnit_Setting": "Set weight unit to :option",
+    "sizeScale_Group": "Volume unit",
+    "weightUnit_Group": "Weight unit",
 
     "estimateMenuText": "Estimate",
     "estimateVolumeName": "Volume",
@@ -26,5 +27,23 @@
     "resultHasNoVolume": ":object has neither shape nor volume",
     "resultHasVolumeOf": "Volume - :volume",
     "resultNeedsMaterialOf": "Weight - :amount",
-    "resultSelectionNoVolume": "None of the selected objects have a volume!"
+    "resultSelectionNoVolume": "None of the selected objects have a volume!",
+
+    "prefsTitle": "Estimate",
+    "prefsOutputGroup": "Result output",
+    "prefsOutputConsole": "Report view",
+    "prefsOutputPopup": "Popup window",
+    "prefsMaterialsGroup": "Custom materials",
+    "prefsMaterialsHint": "Added materials appear in the toolbar's material list after the built-in ones. A material with the name of a built-in one replaces its density.",
+    "prefsMaterialName": "Name",
+    "prefsMaterialDensity": "Density (g/cm³)",
+    "prefsMaterialAdd": "Add",
+    "prefsMaterialRemove": "Remove",
+    "prefsMaterialSkipped": "estimateWB: skipped custom material row :row, it needs a name and a density above 0",
+    "resultUnknownMaterial": "Material :material is not in the material list",
+    "materialNoLongerListed": "Material :material is no longer in the material list, :fallback is picked instead",
+    "prefsMaterialsUnreadable": "estimateWB: the stored custom materials can't be read and are ignored, they stay stored until the list is changed in the preferences",
+    "prefsMaterialIgnored": "estimateWB: ignored stored custom material :name, its density isn't a number above 0",
+    "prefsMaterialReserved": "estimateWB: skipped custom material row :row, :name is the name of the custom density entry",
+    "prefsMaterialDuplicate": "estimateWB: custom material :name is listed in rows :row and :used, row :used is used"
 }
