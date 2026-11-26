@@ -14,14 +14,16 @@ from PySide import QtGui
 ################################################################################
 
 def report(msg: str):
-	""" prints the message to the report view panel """
+	""" prints the message to the report view panel and raises the panel, so it isn't missed """
+	showReportView()
 	now = datetime.now().strftime("%H:%M:%S")
 	FreeCAD.Console.PrintMessage(f"\n{now} {msg}")
 
 
 def showReportView():
 	""" raises the Report view panel so console output isn't missed if it's hidden/docked away """
-	report = FreeCADGui.getMainWindow().findChild(QtGui.QDockWidget, "Report view")
+	window = FreeCADGui.getMainWindow()
+	report = window.findChild(QtGui.QDockWidget, "Report view") if window else None
 	if not report:
 		return
 	if report.isHidden():
@@ -62,17 +64,24 @@ def saveToClipboard(textToSave: str):
 PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
 
 def promptDensity(default: Optional[float] = None):
-	""" asks for a density in g/cm³, returns None if cancelled or not processable """
+	"""
+		asks for a density in g/cm³, returns None if cancelled or not processable
+		invalid input is reported, cancelling is not
+	"""
+	# str() keeps every digit of the saved density, :g would round it to 6 on the next OK
 	text, ok = QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"),
-		QtGui.QLineEdit.Normal, f"{default:g}" if default else "")
+		QtGui.QLineEdit.Normal, str(default) if default else "")
 	if not ok:
 		return None
 	try:
-		density = float(text.replace(",", "."))
+		density = float(text.strip().replace(",", "."))
 	except ValueError:
-		return None
+		density = None
 	# isfinite: "inf" parses and is > 0, but can't be rounded for the result
-	return density if isfinite(density) and density > 0 else None
+	if density is None or not isfinite(density) or density <= 0:
+		report(LANG.chunk("promptDensityError"))
+		return None
+	return density
 
 
 def getCustomDensity():
@@ -125,7 +134,6 @@ def estimateVolume(*void):
 	
 	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{roundup(volume)} {estimateSettings.get('sizeScale')}³"})
 	if estimateSettings.get("reportOutput") == "console":
-		showReportView()
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
 		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
@@ -157,9 +165,8 @@ def estimateWeight(material : Optional[str] = None, density : Optional[float] = 
 			density = materials[material]
 		else:
 			density = promptDensity()
-	if not density:
-		report(LANG.chunk("promptDensityError"))
-		return
+			if not density:
+				return  # cancelled, or invalid input that promptDensity() reported
 	
 	# FreeCAD reported volume is always mm³
 	# density is always g/cm³

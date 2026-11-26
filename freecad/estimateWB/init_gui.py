@@ -16,6 +16,17 @@ CUSTOM_DENSITY = "__custom_density__"
 lastPick = None
 
 
+def comboAlive(combo):
+	""" False if the combo is None or its Qt object has been deleted (e.g. by a toolbar rebuild) """
+	if combo is None:
+		return False
+	try:
+		combo.objectName()
+		return True
+	except RuntimeError:
+		return False
+
+
 def _rememberPick(combo):
 	global lastPick
 	lastPick = combo.currentData() if combo.currentData() == CUSTOM_DENSITY else combo.currentText()
@@ -63,10 +74,13 @@ def _findCalculateButton():
 	command = FreeCADGui.Command.get("Estimate_Calculate")
 	if not command:
 		return None, None
+	# the button can be on more than one toolbar if the user added it to a custom one,
+	# prefer the workbench's own toolbar
+	found = []
 	for action in command.getAction():
 		# Qt6 (PySide6) replaced associatedWidgets() with associatedObjects(), which returns
 		# every associated QObject, not just widgets, hence the isinstance checks; Qt5
-		# (FreeCAD < 1.0) only has associatedWidgets()
+		# builds only have associatedWidgets()
 		if hasattr(action, "associatedObjects"):
 			associated = action.associatedObjects()
 		else:
@@ -80,8 +94,66 @@ def _findCalculateButton():
 				continue
 			for anchor in toolbar.actions():
 				if toolbar.widgetForAction(anchor) is button:
-					return toolbar, anchor
-	return None, None
+					if toolbar.objectName() == LANG.chunk("estimateMenuText"):
+						return toolbar, anchor
+					found.append((toolbar, anchor))
+	return found[0] if found else (None, None)
+
+
+def _installMaterialCombo():
+	global materialCombo
+	from .resources import materials
+
+	# found through FreeCAD's own command manager instead of guessing at Qt object names
+	toolbar, anchor = _findCalculateButton()
+	if not toolbar:
+		materialCombo = None
+		FreeCAD.Console.PrintError("estimateWB: Estimate_Calculate has no toolbar button to attach the material combo to\n")
+		return
+	existing = toolbar.findChild(QtGui.QComboBox, "Estimate_MaterialCombo")
+	if comboAlive(existing):
+		materialCombo = existing
+		return
+	combo = QtGui.QComboBox()
+	combo.setObjectName("Estimate_MaterialCombo")
+	combo.setToolTip(LANG.chunk("estimateByMaterialToolTip"))
+	# resize with the custom density label, which changes after the first show
+	combo.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+	# show 10 entries with a scrollbar instead of a list over the whole screen height;
+	# styles with a popup-style combo ignore maxVisibleItems unless combobox-popup is 0
+	combo.setMaxVisibleItems(10)
+	combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+	# the list view picks AlwaysOff while it still assumes popup mode, so set it explicitly
+	combo.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+	combo.addItems(list(materials.keys()))
+	# custom density lives in the same dropdown, see _onMaterialActivated()
+	combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
+	updateCustomItem(combo)
+	# restore the pick from before a toolbar rebuild, if any
+	if lastPick is not None:
+		index = combo.findData(CUSTOM_DENSITY) if lastPick == CUSTOM_DENSITY else combo.findText(lastPick)
+		combo.setCurrentIndex(max(index, 0))
+	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
+	combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
+	combo.currentIndexChanged.connect(lambda index, c = combo: _rememberPick(c))
+	# inserted right before the calculate button, which reads this combo's
+	# current selection when clicked
+	toolbar.insertWidget(anchor, combo)
+	# FreeCAD can rebuild the toolbar without activating the workbench again (e.g. after
+	# Tools > Customize), which deletes the combo together with its toolbar action
+	combo.destroyed.connect(lambda *_: QtCore.QTimer.singleShot(0, _reinstallMaterialCombo))
+	materialCombo = combo
+
+
+def _reinstallMaterialCombo():
+	""" puts the combo back if it got deleted while the workbench is still active """
+	global materialCombo
+	if comboAlive(materialCombo):
+		return
+	materialCombo = None
+	if isinstance(FreeCADGui.activeWorkbench(), estimateWB):
+		_installMaterialCombo()
+
 
 class estimateWB(FreeCADGui.Workbench):
 	"""
@@ -138,47 +210,7 @@ class estimateWB(FreeCADGui.Workbench):
 		# the toolbar is only fully built once Qt has processed the pending events from
 		# appendToolbar(), so the combo is inserted on the next event loop tick rather
 		# than directly here
-		QtCore.QTimer.singleShot(0, self._installMaterialCombo)
-
-	def _installMaterialCombo(self):
-		global materialCombo
-		from .resources import materials
-
-		# found through FreeCAD's own command manager instead of guessing at Qt object names
-		toolbar, anchor = _findCalculateButton()
-		if not toolbar:
-			FreeCAD.Console.PrintError("estimateWB: Estimate_Calculate has no toolbar button to attach the material combo to\n")
-			return
-		existing = toolbar.findChild(QtGui.QComboBox, "Estimate_MaterialCombo")
-		if existing:
-			materialCombo = existing
-			return
-		combo = QtGui.QComboBox()
-		combo.setObjectName("Estimate_MaterialCombo")
-		combo.setToolTip(LANG.chunk("estimateByMaterialToolTip"))
-		# resize with the custom density label, which changes after the first show
-		combo.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
-		# show 10 entries with a scrollbar instead of a list over the whole screen height;
-		# styles with a popup-style combo ignore maxVisibleItems unless combobox-popup is 0
-		combo.setMaxVisibleItems(10)
-		combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
-		# the list view picks AlwaysOff while it still assumes popup mode, so set it explicitly
-		combo.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-		combo.addItems(list(materials.keys()))
-		# custom density lives in the same dropdown, see _onMaterialActivated()
-		combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
-		updateCustomItem(combo)
-		# restore the pick from before a toolbar rebuild, if any
-		if lastPick is not None:
-			index = combo.findData(CUSTOM_DENSITY) if lastPick == CUSTOM_DENSITY else combo.findText(lastPick)
-			combo.setCurrentIndex(max(index, 0))
-		combo.setProperty("estimatePreviousIndex", combo.currentIndex())
-		combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
-		combo.currentIndexChanged.connect(lambda index, c = combo: _rememberPick(c))
-		# inserted right before the calculate button, which reads this combo's
-		# current selection when clicked
-		toolbar.insertWidget(anchor, combo)
-		materialCombo = combo
+		QtCore.QTimer.singleShot(0, _installMaterialCombo)
 
 	def Deactivated(self):
 		pass

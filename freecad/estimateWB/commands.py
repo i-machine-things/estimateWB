@@ -34,7 +34,15 @@ class BaseCommand():
 			as opposed to the online ressources the parameters are converted to a tuple and json for string passing.
 			this allows for multiple parameters for commands
 		"""
-		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
+		self.dispatch()
+
+	def dispatch(self):
+		"""
+			runs do() through FreeCAD's command line so it shows up in the python console and macros.
+			repr() turns the json into a properly escaped python string literal, so parameters with
+			quotes or backslashes (e.g. user named materials) survive the trip
+		"""
+		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do({repr(json.dumps(self.fnParams))})")
 
 	@classmethod
 	def do(self, fnParams:str = ""):
@@ -89,25 +97,37 @@ class Estimate_By_Material(BaseCommand):
 	def IsActive(self):
 		return Selection.hasSelection()
 	def Activated(self):
-		tools.showReportView()
 		from . import init_gui
 		combo = init_gui.materialCombo
-		if not combo:
+		# comboAlive: a toolbar rebuild may have deleted the combo behind this reference
+		if not init_gui.comboAlive(combo):
 			tools.report("estimateWB: material combo box is not available, cannot estimate weight")
 			return
 		if combo.currentData() == init_gui.CUSTOM_DENSITY:
 			# custom density entry: the density was saved when it was picked in the combo,
 			# only prompt here as a fallback if there is none saved
-			density = tools.getCustomDensity() or tools.promptDensity()
+			density = tools.getCustomDensity()
 			if not density:
-				tools.report(LANG.chunk("promptDensityError"))
-				return
-			tools.setCustomDensity(density)
-			init_gui.updateCustomItem(combo)
+				# promptDensity() already reported invalid input, cancelling just stops here
+				density = tools.promptDensity()
+				if not density:
+					return
+				tools.setCustomDensity(density)
+				init_gui.updateCustomItem(combo)
 			self.fnParams = (None, density)
 		else:
 			self.fnParams = (combo.currentText(),)
-		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
+		self.dispatch()
+
+class Estimate_Weight(BaseCommand):
+	"""
+		not a toolbar command anymore. kept so macros recorded before the material dropdown
+		still run, they contain lines like freecad.estimateWB.commands.Estimate_Weight.do('["PLA"]')
+	"""
+	function = tools.estimateWeight
+
+class Estimate_Weight_Custom(Estimate_Weight):
+	""" see Estimate_Weight, macros contain freecad.estimateWB.commands.Estimate_Weight_Custom.do('[]') """
 
 ################################################################################
 
