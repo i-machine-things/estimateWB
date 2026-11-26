@@ -15,8 +15,36 @@ def icon(name: str):
 
 
 with open(resourcefiles / "materials.json", "r", encoding="utf-8") as jsonfile:
-	""" preparing the material list with names and densities """
-	materials = json.loads(jsonfile.read().replace("\n", ""))
+	""" the built-in material list with names and densities in g/cm³ """
+	baseMaterials = json.loads(jsonfile.read().replace("\n", ""))
+
+# user added materials are stored as a json object {name: density} in the workbench preferences
+PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
+
+def getUserMaterials():
+	""" returns the user added materials as {name: density in g/cm³} """
+	try:
+		user = json.loads(FreeCAD.ParamGet(PARAMS).GetString("userMaterials") or "{}")
+		return {str(name): float(density) for name, density in user.items() if float(density) > 0}
+	except (ValueError, TypeError, AttributeError):
+		return {}
+
+def setUserMaterials(user: dict):
+	""" stores the user added materials and updates the material list """
+	FreeCAD.ParamGet(PARAMS).SetString("userMaterials", json.dumps(user))
+	reloadMaterials()
+
+def reloadMaterials():
+	"""
+		rebuilds the material list in place (other modules hold a reference to it):
+		built-in materials first, then user materials, which override built-ins of the same name
+	"""
+	materials.clear()
+	materials.update(baseMaterials)
+	materials.update(getUserMaterials())
+
+materials = {}
+reloadMaterials()
 
 
 class language:

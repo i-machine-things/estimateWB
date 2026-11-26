@@ -162,7 +162,7 @@ def estimateWeight(material : Optional[str] = None, density : Optional[float] = 
 	
 	if density is None:
 		if material:
-			density = materials[material]
+			density = materials.get(material)
 		else:
 			density = promptDensity()
 			if not density:

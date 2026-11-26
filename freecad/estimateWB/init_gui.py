@@ -45,6 +45,39 @@ def updateCustomItem(combo):
 		combo.setItemText(index, LANG.chunk("customDensityItem"))
 
 
+def fillMaterialCombo(combo):
+	"""
+		(re)fills the combo with the material list and the custom density entry at the end,
+		keeping the current pick if it still exists. called again after materials are added or
+		removed in the preferences
+	"""
+	from .resources import materials
+	if combo.count():
+		current = combo.currentText() if combo.currentData() != CUSTOM_DENSITY else CUSTOM_DENSITY
+	else:
+		# a new combo, e.g. after a toolbar rebuild: restore the pick from before, if any
+		current = lastPick
+	combo.blockSignals(True)
+	combo.clear()
+	combo.addItems(list(materials.keys()))
+	# custom density lives in the same dropdown, see _onMaterialActivated()
+	combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
+	updateCustomItem(combo)
+	if current is None:
+		index = 0
+	else:
+		index = combo.findData(CUSTOM_DENSITY) if current == CUSTOM_DENSITY else combo.findText(current)
+	combo.setCurrentIndex(max(index, 0))
+	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
+	combo.blockSignals(False)
+
+
+def refreshMaterialCombo():
+	""" refills the toolbar's material combo, if it has been installed yet """
+	if materialCombo:
+		fillMaterialCombo(materialCombo)
+
+
 def _onMaterialActivated(combo, index):
 	"""
 		picking the custom density entry (also re-picking it) prompts for the density and saves it,
@@ -102,7 +135,6 @@ def _findCalculateButton():
 
 def _installMaterialCombo():
 	global materialCombo
-	from .resources import materials
 
 	# found through FreeCAD's own command manager instead of guessing at Qt object names
 	toolbar, anchor = _findCalculateButton()
@@ -125,15 +157,7 @@ def _installMaterialCombo():
 	combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
 	# the list view picks AlwaysOff while it still assumes popup mode, so set it explicitly
 	combo.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
-	combo.addItems(list(materials.keys()))
-	# custom density lives in the same dropdown, see _onMaterialActivated()
-	combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
-	updateCustomItem(combo)
-	# restore the pick from before a toolbar rebuild, if any
-	if lastPick is not None:
-		index = combo.findData(CUSTOM_DENSITY) if lastPick == CUSTOM_DENSITY else combo.findText(lastPick)
-		combo.setCurrentIndex(max(index, 0))
-	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
+	fillMaterialCombo(combo)
 	combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
 	combo.currentIndexChanged.connect(lambda index, c = combo: _rememberPick(c))
 	# inserted right before the calculate button, which reads this combo's
@@ -174,8 +198,6 @@ class estimateWB(FreeCADGui.Workbench):
 
 		# setting commands
 		fn = {
-			"Report_console": commands.Set_estimateSettings("reportOutput", "console"),
-			"Report_popup": commands.Set_estimateSettings("reportOutput", "popup"),
 			"Scale_qmm": commands.Set_estimateSettings("sizeScale", "mm"),
 			"Scale_qcm": commands.Set_estimateSettings("sizeScale", "cm"),
 			"Scale_qm": commands.Set_estimateSettings("sizeScale", "m"),
@@ -224,5 +246,12 @@ class estimateWB(FreeCADGui.Workbench):
 	def GetClassName(self): 
 		return "Gui::PythonWorkbench"
 
+
+# workbench settings in Edit > Preferences > Estimate
+# the dialog looks the group icon up as "preferences-estimate" in FreeCAD's icon paths
+import os
+FreeCADGui.addIconPath(os.path.dirname(icon("preferences-estimate")))
+from .preferences import EstimatePreferencePage
+FreeCADGui.addPreferencePage(EstimatePreferencePage, "Estimate")
 
 FreeCADGui.addWorkbench(estimateWB())

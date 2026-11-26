@@ -2,7 +2,6 @@
     "wbToolTip": "Zeigt das Volumen oder Gewicht eines Körpers an um Druckkosten einschätzen zu können",
 
     "settingsMenuText": "Estimate Einstellungen",
-    "reportOutput_Setting": "Ausgbe als :option",
     "sizeScale_Setting": "Volumen als :option³",
     "weightUnit_Setting": "Gewicht als :option",
 
@@ -26,5 +25,17 @@
     "resultHasNoVolume": ":object hat keine Form oder Volumen",
     "resultHasVolumeOf": "Volumen - :volume",
     "resultNeedsMaterialOf": "Gewicht - :amount",
-    "resultSelectionNoVolume": "Keines der markierten Objekte hat ein Volumen!"
+    "resultSelectionNoVolume": "Keines der markierten Objekte hat ein Volumen!",
+
+    "prefsTitle": "Estimate",
+    "prefsOutputGroup": "Ergebnisausgabe",
+    "prefsOutputConsole": "Ausgabefenster",
+    "prefsOutputPopup": "Popup-Fenster",
+    "prefsMaterialsGroup": "Eigene Materialien",
+    "prefsMaterialsHint": "Hinzugefügte Materialien erscheinen in der Materialliste der Werkzeugleiste nach den mitgelieferten. Ein Material mit dem Namen eines mitgelieferten ersetzt dessen Dichte.",
+    "prefsMaterialName": "Name",
+    "prefsMaterialDensity": "Dichte (g/cm³)",
+    "prefsMaterialAdd": "Hinzufügen",
+    "prefsMaterialRemove": "Entfernen",
+    "prefsMaterialSkipped": "estimateWB: eigene Materialzeile :row übersprungen, sie braucht einen Namen und eine Dichte über 0"
 }
