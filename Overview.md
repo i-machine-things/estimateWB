@@ -6,7 +6,8 @@ You can display the volume or expected weight of selected objects at the push of
 
 Common 3d-printing materials and a range of metals are supported by default, you can add your own materials in the preferences, and you can always pick a one-off custom density in g/cm³ from the same material dropdown.
 
-![screenshot](freecad/estimateWB/resources/screenshot.png)
+![Estimate workbench with a weight result popup](freecad/estimateWB/resources/screenshot.png)
+*The Pozidriv bit from FreeCAD's PartDesign example, selected with PLA picked: the volume shows in the report view, the weight in a popup with a copy button. The toolbar on the left holds the unit buttons, the material dropdown and the calculate button.*
 
 ### Usage
 
@@ -19,7 +20,8 @@ Two toolbars are available:
 * The weight unit button sets the output for the weight in g, kg, lb or oz
 * Both buttons show the unit in use, the arrow next to them lists the others. The *Estimate Settings* menu lists all units as well
 
-![unit buttons](freecad/estimateWB/resources/screenshot_units.png)
+![Volume unit menu](freecad/estimateWB/resources/screenshot_units.png)
+*The volume unit button's menu, top left. The weight unit button next to it works the same way.*
 
 **Estimate**
 * The material dropdown selects what the weight is calculated with, showing 10 entries at a time
@@ -29,11 +31,14 @@ Two toolbars are available:
     * *Custom…* at the end of the list asks for a decimal density in g/cm³ (comma or dot), saves it and shows it in the dropdown, e.g. *Custom (1.38 g/cm³)*. Pick it again to change the density. The saved density is kept across FreeCAD restarts
 * The calculate button (scale icon) next to the dropdown returns the estimated weight of the selected objects for the picked material. The arrow next to it switches between *Weight by material* and *Volume*, the button keeps the last used one. If the report view panel is hidden it is brought to the front, so the result isn't missed
 
-![calculate button](freecad/estimateWB/resources/screenshot_calculate.png)
+![Calculate button menu](freecad/estimateWB/resources/screenshot_calculate.png)
+*The arrow next to the calculate button switches between weight and volume.*
 
-![material dropdown](freecad/estimateWB/resources/screenshot_materials.png)
+![Material dropdown](freecad/estimateWB/resources/screenshot_materials.png)
+*The end of the material dropdown: the last built-in metals, two custom materials from the preferences and the saved custom density.*
 
-![custom density](freecad/estimateWB/resources/screenshot_custom_density.png)
+![Custom density prompt](freecad/estimateWB/resources/screenshot_custom_density.png)
+*Picking Custom… asks for a density; the dropdown then shows it, here Custom (1.38 g/cm³).*
 
 ### Preferences
 
@@ -41,7 +46,8 @@ Two toolbars are available:
 * **Result output**: show results in the report view or as a popup with a copy button
 * **Custom materials**: add materials with a name and a density in g/cm³, they are listed in the material dropdown after the built-in ones. A material with the name of a built-in one replaces its density. Changes apply to the dropdown right away
 
-![preferences](freecad/estimateWB/resources/screenshot_preferences.png)
+![Estimate preferences page](freecad/estimateWB/resources/screenshot_preferences.png)
+*Edit → Preferences → Estimate with the result output choice and two custom materials.*
 
 Thats all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³.
 
