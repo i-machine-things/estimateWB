@@ -1,6 +1,12 @@
-from .resources import icon, materials, LANG
+from .resources import icon, LANG
 
+import FreeCAD
 import FreeCADGui
+from PySide import QtCore, QtGui
+
+# reference to the embedded material combo box, read by commands.Estimate_By_Material
+# when the calculate button next to it is clicked
+materialCombo = None
 
 class estimateWB(FreeCADGui.Workbench):
 	"""
@@ -42,10 +48,9 @@ class estimateWB(FreeCADGui.Workbench):
 		# TMYK: but assigning like this is actually cool, because it is dynamically extendable
 		fn = {
 			"Estimate_Volume": commands.Estimate_Volume(),
-			"Estimate_Weight_Custom": commands.Estimate_Weight_Custom()
+			"Estimate_Weight_Custom": commands.Estimate_Weight_Custom(),
+			"Estimate_By_Material": commands.Estimate_By_Material()
 		}
-		for type in materials:
-			fn[f"Estimate_{type}_Weight"] = commands.Estimate_Weight(type)
 
 		self.appendToolbar(LANG.chunk("estimateMenuText"), list(fn.keys()))
 		self.appendMenu(LANG.chunk("estimateMenuText"), list(fn.keys()))
@@ -53,7 +58,43 @@ class estimateWB(FreeCADGui.Workbench):
 			FreeCADGui.addCommand(type, fn[type])
 
 	def Activated(self):
-		pass
+		# the toolbar is only fully built once Qt has processed the pending events from
+		# appendToolbar(), so the combo is inserted on the next event loop tick rather
+		# than directly here
+		QtCore.QTimer.singleShot(0, self._installMaterialCombo)
+
+	def _installMaterialCombo(self):
+		global materialCombo
+		from .resources import materials
+
+		# look the command's QAction(s) up through FreeCAD's own command manager instead
+		# of guessing at Qt object names, then find the toolbar(s) it actually ended up in
+		command = FreeCADGui.Command.get("Estimate_By_Material")
+		if not command:
+			FreeCAD.Console.PrintError("estimateWB: could not find the Estimate_By_Material command\n")
+			return
+
+		for action in command.getAction():
+			# associatedWidgets() was renamed/replaced by associatedObjects() in Qt6 (PySide6),
+			# which returns every associated QObject, not just widgets, hence the isinstance check
+			for widget in action.associatedObjects():
+				if not isinstance(widget, QtGui.QToolBar):
+					continue
+				existing = widget.findChild(QtGui.QComboBox, "Estimate_MaterialCombo")
+				if existing:
+					materialCombo = existing
+					return
+				combo = QtGui.QComboBox()
+				combo.setObjectName("Estimate_MaterialCombo")
+				combo.setToolTip(LANG.chunk("estimateByMaterialToolTip"))
+				combo.addItems(list(materials.keys()))
+				# inserted right before the calculate button, which reads this combo's
+				# current selection when clicked
+				widget.insertWidget(action, combo)
+				materialCombo = combo
+				return
+
+		FreeCAD.Console.PrintError("estimateWB: Estimate_By_Material has no toolbar action to attach the material combo to\n")
 
 	def Deactivated(self):
 		pass

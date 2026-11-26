@@ -17,6 +17,14 @@ def report(msg: str):
 	FreeCAD.Console.PrintMessage(f"\n{now} {msg}")
 
 
+def showReportView():
+	""" raises the Report view panel so console output isn't missed if it's hidden/docked away """
+	report = FreeCADGui.getMainWindow().findChild(QtGui.QDockWidget, "Report view")
+	if report and not report.isVisible():
+		report.show()
+		report.raise_()
+
+
 def msgbox(title: str, msg: str, copy: str):
 	""" displays the result as a popup with option to copy a value """
 

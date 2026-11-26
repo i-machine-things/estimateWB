@@ -57,17 +57,26 @@ class Estimate_Volume(BaseCommand):
 
 ################################################################################
 
-class Estimate_Weight(BaseCommand):
-	# TMYK: with a parameter for the function the command has to be set up with __init__()
+class Estimate_By_Material(BaseCommand):
+	# TMYK: the material comes from the combo box the workbench embeds next to this
+	# button in the toolbar (see init_gui.materialCombo), so this overrides Activated()
+	# instead of just declaring fnParams up front
+	name = LANG.chunk("estimateByMaterialName")
 	function = tools.estimateWeight
-	def __init__(self, *fnParams):
-		self.fnParams = fnParams
-		self.name = LANG.chunk("estimateWeightName", {":option": fnParams[0]})
-		self.pixmap = icon(fnParams[0])
-		self.menuText = LANG.chunk("estimateWeightName", {":option": fnParams[0]})
-		self.toolTip = LANG.chunk("estimateWeightToolTip", {":option": fnParams[0]})
+	pixmap = icon("calculate")
+	menuText = LANG.chunk("estimateByMaterialName")
+	toolTip = LANG.chunk("estimateByMaterialToolTip")
 	def IsActive(self):
 		return Selection.hasSelection()
+	def Activated(self):
+		tools.showReportView()
+		from . import init_gui
+		material = init_gui.materialCombo.currentText() if init_gui.materialCombo else None
+		if material:
+			self.fnParams = (material,)
+			FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
+		else:
+			tools.report("estimateWB: material combo box is not available, cannot estimate weight")
 
 class Estimate_Weight_Custom(BaseCommand):
 	name = LANG.chunk("estimateWeightCustomName")

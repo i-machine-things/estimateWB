@@ -11,8 +11,8 @@
     "estimateVolumeToolTip": "Selected bodies approximate volume",
     "estimateWeightCustomName": "Weight with custom density",
     "estimateWeightCustomToolTip": "Selected body's approximate weight with custom density",
-    "estimateWeightName": "Estimate weight in :option",
-    "estimateWeightToolTip": "Selected body's approximate weight in :option",
+    "estimateByMaterialName": "Weight by material",
+    "estimateByMaterialToolTip": "Selected body's approximate weight using a picked material",
 
     "promptDensityTitle": "Custom",
     "promptDensityText": "Enter density in g/cm³:",
@@ -23,6 +23,6 @@
     "resultWeightPopCopy": "Copy",
     "resultHasNoVolume": ":object has neither shape nor volume",
     "resultHasVolumeOf": "Selection has a volume of :volume",
-    "resultNeedsMaterialOf": "Selection needs about :amount of :material",
+    "resultNeedsMaterialOf": ":amount",
     "resultSelectionNoVolume": "None of the selected objects have a volume!"
 }
