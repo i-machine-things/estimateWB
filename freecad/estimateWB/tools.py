@@ -20,9 +20,12 @@ def report(msg: str):
 def showReportView():
 	""" raises the Report view panel so console output isn't missed if it's hidden/docked away """
 	report = FreeCADGui.getMainWindow().findChild(QtGui.QDockWidget, "Report view")
-	if report and not report.isVisible():
+	if not report:
+		return
+	if report.isHidden():
 		report.show()
-		report.raise_()
+	# raise_() also selects the Report view tab when it is tabified behind another dock
+	report.raise_()
 
 
 def msgbox(title: str, msg: str, copy: str):

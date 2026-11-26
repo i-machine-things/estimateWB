@@ -75,9 +75,14 @@ class estimateWB(FreeCADGui.Workbench):
 			return
 
 		for action in command.getAction():
-			# associatedWidgets() was renamed/replaced by associatedObjects() in Qt6 (PySide6),
-			# which returns every associated QObject, not just widgets, hence the isinstance check
-			for widget in action.associatedObjects():
+			# Qt6 (PySide6) replaced associatedWidgets() with associatedObjects(), which returns
+			# every associated QObject, not just widgets, hence the isinstance check; Qt5
+			# (FreeCAD < 1.0) only has associatedWidgets()
+			if hasattr(action, "associatedObjects"):
+				associated = action.associatedObjects()
+			else:
+				associated = action.associatedWidgets()
+			for widget in associated:
 				if not isinstance(widget, QtGui.QToolBar):
 					continue
 				existing = widget.findChild(QtGui.QComboBox, "Estimate_MaterialCombo")
