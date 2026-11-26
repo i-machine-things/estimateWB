@@ -130,6 +130,12 @@ class estimateWB(FreeCADGui.Workbench):
 				combo.setToolTip(LANG.chunk("estimateByMaterialToolTip"))
 				# resize with the custom density label, which changes after the first show
 				combo.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
+				# show 10 entries with a scrollbar instead of a list over the whole screen height;
+				# styles with a popup-style combo ignore maxVisibleItems unless combobox-popup is 0
+				combo.setMaxVisibleItems(10)
+				combo.setStyleSheet("QComboBox { combobox-popup: 0; }")
+				# the list view picks AlwaysOff while it still assumes popup mode, so set it explicitly
+				combo.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 				combo.addItems(list(materials.keys()))
 				# custom density lives in the same dropdown, see _onMaterialActivated()
 				combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
