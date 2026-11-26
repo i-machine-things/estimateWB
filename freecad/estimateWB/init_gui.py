@@ -76,12 +76,9 @@ def fillMaterialCombo(combo):
 
 def refreshMaterialCombo():
 	""" refills the toolbar's material combo, if it has been installed yet """
-	if materialCombo:
-		try:
-			fillMaterialCombo(materialCombo)
-		except RuntimeError:
-			# the toolbar was rebuilt since, the next workbench activation builds a filled combo
-			pass
+	# comboAlive: if a toolbar rebuild deleted it, the next one installed is filled anyway
+	if comboAlive(materialCombo):
+		fillMaterialCombo(materialCombo)
 
 
 def _onMaterialActivated(combo, index):
