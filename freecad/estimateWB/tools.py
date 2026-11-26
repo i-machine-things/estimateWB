@@ -100,11 +100,27 @@ def setCustomDensity(density: float):
 # calculations
 ################################################################################
 
+SIGNIFICANT_DIGITS = 3
+
 def roundup(number: float):
-	""" returns the rounded number according to FreeCad settings"""
+	"""
+		returns the rounded number according to FreeCad settings
+		values below 1 keep at least SIGNIFICANT_DIGITS significant digits, so large units like m³ or ft³
+		don't round small parts to 0.00 (or 0.0353 ft³ up to 0.04)
+	"""
 	precision = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Units").GetInt("Decimals")
 	precision = 2 if not precision else precision
-	return Decimal(number).quantize(Decimal("1e" + str(-precision)), rounding = ROUND_HALF_UP)
+	# str() gives the shortest decimal that represents the float, so e.g. 2.675 rounds to 2.68 instead
+	# of following the binary 2.67499999... down to 2.67
+	value = Decimal(str(number))
+	rounded = value.quantize(Decimal("1e" + str(-precision)), rounding = ROUND_HALF_UP)
+	if value and abs(value) < 1:
+		# adjusted() is the exponent of the first significant digit, e.g. -2 for 0.0353
+		small = value.quantize(Decimal("1e" + str(-max(precision, SIGNIFICANT_DIGITS - 1 - value.adjusted()))), rounding = ROUND_HALF_UP)
+		# keep the extra digits only while the result stays below 1 (0.999999 is 1.00, not 1.000)
+		if abs(small) < 1:
+			rounded = small
+	return rounded
 
 
 def volumeOf(object: object):
