@@ -10,7 +10,9 @@ class Settings():
         "sizeScale": {
             "mm": 1,
             "cm": 1000,
-            "m": 1000000000
+            "m": 1000000000,
+            "in": 16387.064,
+            "ft": 28316846.592
         },
         "weightUnit": {
             "g": 1,
@@ -60,7 +62,7 @@ class Settings():
         """
             use e.g. like estimateSettings.set("sizeScale", "cm")  
             available options are
-            * sizeScale - mm, cm and m
+            * sizeScale - mm, cm, m, in and ft
             * weightUnit - g, kg and lb
             * reportOutput - console and popup
 

@@ -201,17 +201,25 @@ class estimateWB(FreeCADGui.Workbench):
 			"Scale_qmm": commands.Set_estimateSettings("sizeScale", "mm"),
 			"Scale_qcm": commands.Set_estimateSettings("sizeScale", "cm"),
 			"Scale_qm": commands.Set_estimateSettings("sizeScale", "m"),
+			"Scale_qin": commands.Set_estimateSettings("sizeScale", "in"),
+			"Scale_qft": commands.Set_estimateSettings("sizeScale", "ft"),
 			"Weight_g": commands.Set_estimateSettings("weightUnit", "g"),
 			"Weight_kg": commands.Set_estimateSettings("weightUnit", "kg"),
 			"Weight_lb": commands.Set_estimateSettings("weightUnit", "lb")
 		}
-		# TMYK: the first parameter is visible e.g as the menu entry, second parameter is a list of the assigned commands names
-		# you could as well assign a manual list as second parameter
-		self.appendToolbar(LANG.chunk("settingsMenuText"), list(fn.keys()))
-		self.appendMenu(LANG.chunk("settingsMenuText"), list(fn.keys()))
 		# you could as well add every command linewise, with the first parameter being the assigned command name, the second the respective function call
 		for type in fn:
 			FreeCADGui.addCommand(type, fn[type])
+		# the toolbar bundles the options of each setting into one dropdown button
+		groups = {}
+		for setting, group in (("sizeScale", "Settings_VolumeUnit"), ("weightUnit", "Settings_WeightUnit")):
+			options = {name: command.fnParams[1] for name, command in fn.items() if command.fnParams[0] == setting}
+			FreeCADGui.addCommand(group, commands.Settings_Group(setting, options))
+			groups[group] = options
+		# TMYK: the first parameter is visible e.g as the menu entry, second parameter is a list of the assigned commands names
+		# you could as well assign a manual list as second parameter
+		self.appendToolbar(LANG.chunk("settingsMenuText"), list(groups.keys()))
+		self.appendMenu(LANG.chunk("settingsMenuText"), list(fn.keys()))
 
 		# estimate commands
 		# TMYK: but assigning like this is actually cool, because it is dynamically extendable

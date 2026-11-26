@@ -134,7 +134,7 @@ class Estimate_Weight_Custom(Estimate_Weight):
 class Set_estimateSettings(BaseCommand):
 	"""
 		currently supported fnParams are
-		* sizeScale - mm, cm and m
+		* sizeScale - mm, cm, m, in and ft
 		* weightUnit - g, kg and lb
 		* reportOutput - console and popup (set in the preferences page, see preferences.py)
 
@@ -152,6 +152,32 @@ class Set_estimateSettings(BaseCommand):
 		self.menuText = LANG.chunk(setting + "_Setting", {":option": value})
 		self.toolTip = LANG.chunk(setting + "_Setting", {":option": value})
 	def IsActive(self):
-		setting, value = self.fnParams
-		return estimateSettings.get(setting) != value
+		# always active: in a Settings_Group the button shows the current unit, and a disabled
+		# current unit would grey out the whole button. picking the current unit again is a no-op
+		return True
+
+
+class Settings_Group():
+	"""
+		one toolbar button with a dropdown arrow for the options of one setting (like Estimate_Calculate).
+		the button starts on the current option and then shows the last picked one, so it always
+		displays the unit in use
+	"""
+	def __init__(self, setting: str, commands: dict):
+		# commands: {command name: option value}
+		self.setting = setting
+		self.commands = commands
+	def GetCommands(self):
+		return tuple(self.commands.keys())
+	def GetDefaultCommand(self):
+		values = list(self.commands.values())
+		current = estimateSettings.get(self.setting)
+		return values.index(current) if current in values else 0
+	def GetResources(self):
+		return {"MenuText": LANG.chunk(self.setting + "_Group"),
+				"ToolTip": LANG.chunk(self.setting + "_Group"),
+				"DropDownMenu": True,
+				"Exclusive": False}
+	def IsActive(self):
+		return True
 

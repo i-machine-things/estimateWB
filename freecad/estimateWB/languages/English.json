@@ -4,6 +4,8 @@
     "settingsMenuText": "Estimate Settings",
     "sizeScale_Setting": "Display volume in :option³",
     "weightUnit_Setting": "Set weight unit to :option",
+    "sizeScale_Group": "Volume unit",
+    "weightUnit_Group": "Weight unit",
 
     "estimateMenuText": "Estimate",
     "estimateVolumeName": "Volume",
