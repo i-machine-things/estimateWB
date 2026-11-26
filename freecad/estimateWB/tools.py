@@ -54,6 +54,36 @@ def saveToClipboard(textToSave: str):
 
 
 ################################################################################
+# custom density
+################################################################################
+
+PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
+
+def promptDensity(default: float|None = None):
+	""" asks for a density in g/cm³, returns None if cancelled or not processable """
+	text, ok = QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"),
+		QtGui.QLineEdit.Normal, f"{default:g}" if default else "")
+	if not ok:
+		return None
+	try:
+		density = float(text.replace(",", "."))
+	except ValueError:
+		return None
+	return density if density > 0 else None
+
+
+def getCustomDensity():
+	""" returns the saved custom density in g/cm³ or None if none has been saved yet """
+	density = FreeCAD.ParamGet(PARAMS).GetFloat("customDensity", 0.0)
+	return density if density > 0 else None
+
+
+def setCustomDensity(density: float):
+	""" saves the custom density in g/cm³ to the workbench preferences """
+	FreeCAD.ParamGet(PARAMS).SetFloat("customDensity", density)
+
+
+################################################################################
 # calculations
 ################################################################################
 
@@ -96,10 +126,11 @@ def estimateVolume(*void):
 		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
 
 
-def estimateWeight(material : str|None = None):
+def estimateWeight(material : str|None = None, density : float|None = None):
 	"""
 		calculates the weight of the selected objects according to the passed material and reports to the selected report option  
-		prompts for density if no material has been passed
+		an explicitly passed density (e.g. the toolbar's custom density) takes precedence over the material lookup  
+		prompts for density if neither has been passed
 	"""
 	objects = FreeCADGui.Selection.getSelection()
 
@@ -116,15 +147,11 @@ def estimateWeight(material : str|None = None):
 	if material == "None": # even None, if passed, ends up a string here
 		material = None
 	
-	density = None
-
-	if material:
-		density = materials[material]
-	else:
-		try:
-			density = float(QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"))[0].replace(",", "."))
-		except:
-			pass
+	if density is None:
+		if material:
+			density = materials[material]
+		else:
+			density = promptDensity()
 	if not density:
 		report(LANG.chunk("promptDensityError"))
 		return

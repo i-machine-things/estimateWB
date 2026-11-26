@@ -9,8 +9,8 @@
     "estimateMenuText": "Estimate",
     "estimateVolumeName": "Volumen",
     "estimateVolumeToolTip": "Ungefähres Gewicht der ausgewählten Teile",
-    "estimateWeightCustomName": "Gewicht mit spezifischer Materialdichte",
-    "estimateWeightCustomToolTip": "Ungefähres Gewicht der ausgewählten Teile mit spezifischer Materialdichte",
+    "customDensityItem": "Spezifisch…",
+    "customDensityItemSet": "Spezifisch (:density g/cm³)",
     "estimateByMaterialName": "Gewicht nach Material",
     "estimateByMaterialToolTip": "Ungefähres Gewicht der ausgewählten Körper mit gewähltem Material",
 

@@ -71,21 +71,23 @@ class Estimate_By_Material(BaseCommand):
 	def Activated(self):
 		tools.showReportView()
 		from . import init_gui
-		material = init_gui.materialCombo.currentText() if init_gui.materialCombo else None
-		if material:
-			self.fnParams = (material,)
-			FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
-		else:
+		combo = init_gui.materialCombo
+		if not combo:
 			tools.report("estimateWB: material combo box is not available, cannot estimate weight")
-
-class Estimate_Weight_Custom(BaseCommand):
-	name = LANG.chunk("estimateWeightCustomName")
-	function = tools.estimateWeight
-	pixmap = icon("none")
-	menuText = LANG.chunk("estimateWeightCustomName")
-	toolTip = LANG.chunk("estimateWeightCustomToolTip")
-	def IsActive(self):
-		return Selection.hasSelection()
+			return
+		if combo.currentData() == init_gui.CUSTOM_DENSITY:
+			# custom density entry: the density was saved when it was picked in the combo,
+			# only prompt here as a fallback if there is none saved
+			density = tools.getCustomDensity() or tools.promptDensity()
+			if not density:
+				tools.report(LANG.chunk("promptDensityError"))
+				return
+			tools.setCustomDensity(density)
+			init_gui.updateCustomItem(combo)
+			self.fnParams = (None, density)
+		else:
+			self.fnParams = (combo.currentText(),)
+		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
 
 ################################################################################
 

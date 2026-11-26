@@ -8,6 +8,43 @@ from PySide import QtCore, QtGui
 # when the calculate button next to it is clicked
 materialCombo = None
 
+# item data marking the combo's custom density entry (material entries carry no data)
+CUSTOM_DENSITY = "__custom_density__"
+
+
+def updateCustomItem(combo):
+	""" labels the custom density entry with the saved density, if there is one """
+	from . import tools
+	index = combo.findData(CUSTOM_DENSITY)
+	if index < 0:
+		return
+	density = tools.getCustomDensity()
+	if density:
+		combo.setItemText(index, LANG.chunk("customDensityItemSet", {":density": f"{density:g}"}))
+	else:
+		combo.setItemText(index, LANG.chunk("customDensityItem"))
+
+
+def _onMaterialActivated(combo, index):
+	"""
+		picking the custom density entry (also re-picking it) prompts for the density and saves it,
+		cancelling falls back to the previously picked entry
+	"""
+	from . import tools
+	if combo.itemData(index) != CUSTOM_DENSITY:
+		combo.setProperty("estimatePreviousIndex", index)
+		return
+	density = tools.promptDensity(tools.getCustomDensity())
+	if density:
+		tools.setCustomDensity(density)
+		updateCustomItem(combo)
+		combo.setProperty("estimatePreviousIndex", index)
+		return
+	previous = combo.property("estimatePreviousIndex")
+	if tools.getCustomDensity() is None or previous is None:
+		# nothing usable to stay on, go back to what was picked before
+		combo.setCurrentIndex(previous if previous is not None else 0)
+
 class estimateWB(FreeCADGui.Workbench):
 	"""
 		this is the main workbench class that embeds the menu and toolbar buttons with assigned functions
@@ -48,7 +85,6 @@ class estimateWB(FreeCADGui.Workbench):
 		# TMYK: but assigning like this is actually cool, because it is dynamically extendable
 		fn = {
 			"Estimate_Volume": commands.Estimate_Volume(),
-			"Estimate_Weight_Custom": commands.Estimate_Weight_Custom(),
 			"Estimate_By_Material": commands.Estimate_By_Material()
 		}
 
@@ -92,7 +128,14 @@ class estimateWB(FreeCADGui.Workbench):
 				combo = QtGui.QComboBox()
 				combo.setObjectName("Estimate_MaterialCombo")
 				combo.setToolTip(LANG.chunk("estimateByMaterialToolTip"))
+				# resize with the custom density label, which changes after the first show
+				combo.setSizeAdjustPolicy(QtGui.QComboBox.AdjustToContents)
 				combo.addItems(list(materials.keys()))
+				# custom density lives in the same dropdown, see _onMaterialActivated()
+				combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
+				updateCustomItem(combo)
+				combo.setProperty("estimatePreviousIndex", 0)
+				combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
 				# inserted right before the calculate button, which reads this combo's
 				# current selection when clicked
 				widget.insertWidget(action, combo)

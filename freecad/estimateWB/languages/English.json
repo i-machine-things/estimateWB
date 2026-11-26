@@ -9,8 +9,8 @@
     "estimateMenuText": "Estimate",
     "estimateVolumeName": "Volume",
     "estimateVolumeToolTip": "Selected bodies approximate volume",
-    "estimateWeightCustomName": "Weight with custom density",
-    "estimateWeightCustomToolTip": "Selected body's approximate weight with custom density",
+    "customDensityItem": "Custom…",
+    "customDensityItemSet": "Custom (:density g/cm³)",
     "estimateByMaterialName": "Weight by material",
     "estimateByMaterialToolTip": "Selected body's approximate weight using a picked material",
 
