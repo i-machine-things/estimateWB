@@ -2,7 +2,7 @@
 
 A FreeCAD workbench to estimate material quantity by volume or weight for selected parts
 
-> **This is a fork.** The Estimate workbench is the work of [error on line 1](https://github.com/erroronline1) - the original lives at [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) and is available in FreeCAD's Addon Manager as-is. All credit for the workbench goes to them and its contributors [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid) and [@chennes](https://github.com/chennes). This fork's [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) reworks the toolbar and adds preferences, units and materials, see [*unreleased*](#version-update) for what changed and [Installation](#installation) for how to install it.
+> **This is a fork.** The Estimate workbench is the work of [error on line 1](https://github.com/erroronline1) - the original lives at [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) and is available in FreeCAD's Addon Manager as-is. All credit for the workbench goes to them and its contributors [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid), [@chennes](https://github.com/chennes) and [@luzpaz](https://github.com/luzpaz). Since November 2026 this fork's [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) has modified it: it reworks the toolbar and adds preferences, units and materials, see [*unreleased*](#version-update) for what changed and [Installation](#installation) for how to install it.
 
 ### Background
 [This frankenstein's monster of a workbench](#about-the-code) for FreeCAD has been somehow sewn together to work almost as expected.
@@ -95,7 +95,7 @@ Two toolbars are available:
 
 Thats all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³. So any output will be in metric units by default, lb and weight units toolbar work of [@zackwhit](https://github.com/zackwhit/). They also added a popup that has been applied to the volume as well in version 0.1.4 - now selectable for either report view or popup in the preferences.
 
-[@PhoneDroid](https://github.com/PhoneDroid) added the result for *all selected* parts, [@chennes](https://github.com/chennes) contributed packaging and encoding fixes.
+[@PhoneDroid](https://github.com/PhoneDroid) added the result for *all selected* parts, [@chennes](https://github.com/chennes) contributed packaging and encoding fixes, [@luzpaz](https://github.com/luzpaz) tidied up typos and the readme.
 
 ### Installation 
 
@@ -169,4 +169,9 @@ Base of everything has been
 
 ## License
 
-estimateWB is released under the LGPL3+ license. See [LICENSE](LICENSE).
+Copyright (C) 2022-2025 error on line 1 and contributors\
+Modifications on the `custom` branch Copyright (C) 2026 i-machine-things
+
+estimateWB is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE.txt](LICENSE.txt) for the LGPL and [COPYING](COPYING) for the GNU General Public License it builds on.
+
+This fork has been modified from the original since November 2026, the changes are listed under [*unreleased*](#version-update) and in the git history.

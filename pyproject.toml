@@ -9,7 +9,7 @@ maintainers = [
   {name = "error on line 1", email = "dev@erroronline.one"}
 ]
 license = "LGPL-3.0-or-later"
-license-files = ["LICEN[CS]E.*"]
+license-files = ["LICEN[CS]E.*", "COPYING"]
 readme = "README.md"
 keywords = ["estimate", "addon", "freecad", "workbench"]
 
