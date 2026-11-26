@@ -17,7 +17,8 @@ class Settings():
         "weightUnit": {
             "g": 1,
             "kg": 0.001,
-            "lb": 0.00220462262185
+            "lb": 0.00220462262185,
+            "oz": 0.0352739619496
         },
         "reportOutput": [
             "console",
@@ -63,7 +64,7 @@ class Settings():
             use e.g. like estimateSettings.set("sizeScale", "cm")  
             available options are
             * sizeScale - mm, cm, m, in and ft
-            * weightUnit - g, kg and lb
+            * weightUnit - g, kg, lb and oz
             * reportOutput - console and popup
 
             sizeScaleFactor and weightUnitFactor are set accordingly

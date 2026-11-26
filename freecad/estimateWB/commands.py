@@ -135,7 +135,7 @@ class Set_estimateSettings(BaseCommand):
 	"""
 		currently supported fnParams are
 		* sizeScale - mm, cm, m, in and ft
-		* weightUnit - g, kg and lb
+		* weightUnit - g, kg, lb and oz
 		* reportOutput - console and popup (set in the preferences page, see preferences.py)
 
 		icons have to be named accordingly fnParams[0]_fnParams[1].svg

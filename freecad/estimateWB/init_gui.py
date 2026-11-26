@@ -205,7 +205,8 @@ class estimateWB(FreeCADGui.Workbench):
 			"Scale_qft": commands.Set_estimateSettings("sizeScale", "ft"),
 			"Weight_g": commands.Set_estimateSettings("weightUnit", "g"),
 			"Weight_kg": commands.Set_estimateSettings("weightUnit", "kg"),
-			"Weight_lb": commands.Set_estimateSettings("weightUnit", "lb")
+			"Weight_lb": commands.Set_estimateSettings("weightUnit", "lb"),
+			"Weight_oz": commands.Set_estimateSettings("weightUnit", "oz")
 		}
 		# you could as well add every command linewise, with the first parameter being the assigned command name, the second the respective function call
 		for type in fn:
