@@ -139,12 +139,16 @@ def syncSettingButton(setting: str):
 	index = values.index(current)
 	if index >= len(actions):
 		return
-	# the group's own action is the toolbar button's, reachable through the button's dropdown menu
-	for menu in _associated(actions[index]):
-		button = menu.parent() if isinstance(menu, QtGui.QMenu) else None
-		if isinstance(button, QtGui.QToolButton) and button.defaultAction():
-			button.defaultAction().setIcon(actions[index].icon())
-			break
+	# the group's own action (the toolbar button's) is named after the command. the same as
+	# FreeCAD's ActionGroup::setCheckedAction(): icon and tooltip of the option, and the option
+	# as the group's default, which is what clicking the button itself runs
+	groupAction = FreeCADGui.getMainWindow().findChild(QtGui.QAction, group)
+	if not groupAction:
+		return
+	groupAction.setIcon(actions[index].icon())
+	groupAction.setToolTip(actions[index].toolTip())
+	if groupAction.parent():
+		groupAction.parent().setProperty("defaultAction", index)
 
 
 def _findCalculateButton():
