@@ -28,7 +28,7 @@ Common 3d-printing materials and a range of metals are supported by default, and
     * **material dropdown instead of one button per material**: the estimate toolbar had a button for every material, which doesn't scale beyond a handful of materials. Materials are now picked from a dropdown and the weight is calculated with the calculate button next to it
     * **metals added**: aluminium, brass, bronze, copper, gold, iron, lead, magnesium, mercury, nickel, platinum, silver, steel, tin alloys, titanium, tungsten and zinc densities. These were stranded in an outdated copy of the workbench in the repository root since the restructure and are now part of the actual workbench
     * **custom density moved into the dropdown**: the separate custom density button is replaced by the *Custom…* entry, which prompts once, remembers the density across restarts and is used by the calculate button like any other material
-    * **shorter weight result**: the report view line and popup show only the weight (e.g. *0.66g*), as the material is visible in the dropdown
+    * **result format**: results read *Weight - 0.66 g* and *Volume - 531.73 mm³* in the report view and popup, as the material is visible in the dropdown
     * **report view opens on calculate**: the report view panel is opened and brought to the front if it's closed or behind another tab
     * **cleanup**: the outdated root level copy of the workbench (pre-restructure python files, languages and icons) and the no longer used per-material and custom density icons are removed
 * 0.1.5
