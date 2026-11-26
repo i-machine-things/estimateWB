@@ -39,5 +39,11 @@
     "prefsMaterialDensity": "Dichte (g/cm³)",
     "prefsMaterialAdd": "Hinzufügen",
     "prefsMaterialRemove": "Entfernen",
-    "prefsMaterialSkipped": "estimateWB: eigene Materialzeile :row übersprungen, sie braucht einen Namen und eine Dichte über 0"
+    "prefsMaterialSkipped": "estimateWB: eigene Materialzeile :row übersprungen, sie braucht einen Namen und eine Dichte über 0",
+    "resultUnknownMaterial": "Material :material ist nicht in der Materialliste",
+    "materialNoLongerListed": "Material :material ist nicht mehr in der Materialliste, stattdessen ist :fallback gewählt",
+    "prefsMaterialsUnreadable": "estimateWB: die gespeicherten eigenen Materialien sind nicht lesbar und werden ignoriert, sie bleiben gespeichert bis die Liste in den Einstellungen geändert wird",
+    "prefsMaterialIgnored": "estimateWB: gespeichertes eigenes Material :name ignoriert, seine Dichte ist keine Zahl über 0",
+    "prefsMaterialReserved": "estimateWB: eigenes Material in Zeile :row übersprungen, :name ist der Name des Eintrags für eigene Dichte",
+    "prefsMaterialDuplicate": "estimateWB: eigenes Material :name steht in den Zeilen :row und :used, Zeile :used wird verwendet"
 }

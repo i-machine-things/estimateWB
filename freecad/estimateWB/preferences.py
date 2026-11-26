@@ -13,6 +13,8 @@ class EstimatePreferencePage:
 		the dialog opens and saveSettings() on OK/Apply
 	"""
 	def __init__(self, parent = None):
+		# the materials as loaded into the table, see saveSettings()
+		self.loadedMaterials = None
 		self.form = QtGui.QWidget(parent)
 		self.form.setWindowTitle(LANG.chunk("prefsTitle"))
 		layout = QtGui.QVBoxLayout(self.form)
@@ -68,13 +70,18 @@ class EstimatePreferencePage:
 		self.outputPopup.setChecked(popup)
 		self.outputConsole.setChecked(not popup)
 		self.table.setRowCount(0)
-		for name, density in getUserMaterials().items():
-			self.addRow(name, f"{density:g}")
+		self.loadedMaterials = getUserMaterials()
+		for name, density in self.loadedMaterials.items():
+			# str() keeps every digit, :g would round to 6 and save that on the next OK
+			self.addRow(name, str(density))
 
 	def saveSettings(self):
 		estimateSettings.set("reportOutput", "popup" if self.outputPopup.isChecked() else "console")
 
+		# commit a cell that is still being edited
+		self.table.setCurrentIndex(QtCore.QModelIndex())
 		user = {}
+		rows = {}
 		for row in range(self.table.rowCount()):
 			name = (self.table.item(row, 0).text() if self.table.item(row, 0) else "").strip()
 			density = (self.table.item(row, 1).text() if self.table.item(row, 1) else "").strip()
@@ -87,8 +94,19 @@ class EstimatePreferencePage:
 			if not name or not isfinite(value) or value <= 0:
 				FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialSkipped", {":row": str(row + 1)}) + "\n")
 				continue
+			# the material list already has an entry with this label, picking it would be ambiguous
+			if name == LANG.chunk("customDensityItem"):
+				FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialReserved", {":row": str(row + 1), ":name": name}) + "\n")
+				continue
+			if name in user:
+				FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialDuplicate", {":name": name, ":row": str(rows[name]), ":used": str(row + 1)}) + "\n")
 			user[name] = value
-		setUserMaterials(user)
+			rows[name] = row + 1
+		# only store when the table changed: if the stored list couldn't be read, the table loaded
+		# empty and saving it unchanged (e.g. for the output setting) would overwrite it for good
+		if user != self.loadedMaterials:
+			setUserMaterials(user)
+			self.loadedMaterials = user
 
 		# the toolbar combo only exists once the workbench has been activated
 		from . import init_gui

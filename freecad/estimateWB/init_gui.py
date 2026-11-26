@@ -70,6 +70,11 @@ def fillMaterialCombo(combo):
 	combo.setCurrentIndex(max(index, 0))
 	combo.setProperty("estimatePreviousIndex", combo.currentIndex())
 	combo.blockSignals(False)
+	if index < 0:
+		# the picked material was renamed or removed in the preferences, say so instead of
+		# silently calculating with another one
+		from . import tools
+		tools.report(LANG.chunk("materialNoLongerListed", {":material": current, ":fallback": combo.currentText()}))
 	# signals were blocked, so record the (possibly changed) pick directly
 	_rememberPick(combo)
 
@@ -101,6 +106,47 @@ def _onMaterialActivated(combo, index):
 	combo.setCurrentIndex(previous if previous is not None else 0)
 
 
+# setting -> (group command name, option values in dropdown order), filled in Initialize()
+settingGroups = {}
+
+
+def _associated(action):
+	"""
+		the widgets an action has been added to. Qt6 (PySide6) replaced associatedWidgets() with
+		associatedObjects(), which returns every associated QObject, not just widgets, hence the
+		isinstance checks where this is used; Qt5 builds only have associatedWidgets()
+	"""
+	if hasattr(action, "associatedObjects"):
+		return action.associatedObjects()
+	return action.associatedWidgets()
+
+
+def syncSettingButton(setting: str):
+	"""
+		shows the option in use on the setting's toolbar dropdown button. FreeCAD only does that itself
+		for picks from the dropdown or the settings menu, not when the option is set otherwise
+		(the separate unit commands from a shortcut or a custom toolbar, or a macro)
+	"""
+	from . import estimateSettings
+	if setting not in settingGroups:
+		return
+	group, values = settingGroups[setting]
+	command = FreeCADGui.Command.get(group)
+	current = estimateSettings.get(setting)
+	if not command or current not in values:
+		return
+	actions = command.getAction()
+	index = values.index(current)
+	if index >= len(actions):
+		return
+	# the group's own action is the toolbar button's, reachable through the button's dropdown menu
+	for menu in _associated(actions[index]):
+		button = menu.parent() if isinstance(menu, QtGui.QMenu) else None
+		if isinstance(button, QtGui.QToolButton) and button.defaultAction():
+			button.defaultAction().setIcon(actions[index].icon())
+			break
+
+
 def _findCalculateButton():
 	"""
 		returns (toolbar, action) of the Estimate_Calculate group button, or (None, None)
@@ -114,14 +160,7 @@ def _findCalculateButton():
 	# prefer the workbench's own toolbar
 	found = []
 	for action in command.getAction():
-		# Qt6 (PySide6) replaced associatedWidgets() with associatedObjects(), which returns
-		# every associated QObject, not just widgets, hence the isinstance checks; Qt5
-		# builds only have associatedWidgets()
-		if hasattr(action, "associatedObjects"):
-			associated = action.associatedObjects()
-		else:
-			associated = action.associatedWidgets()
-		for menu in associated:
+		for menu in _associated(action):
 			if not isinstance(menu, QtGui.QMenu):
 				continue
 			button = menu.parent()
@@ -220,10 +259,12 @@ class estimateWB(FreeCADGui.Workbench):
 			options = {name: command.fnParams[1] for name, command in fn.items() if command.fnParams[0] == setting}
 			FreeCADGui.addCommand(group, commands.Settings_Group(setting, options))
 			groups[group] = options
+			settingGroups[setting] = (group, list(options.values()))
 		# TMYK: the first parameter is visible e.g as the menu entry, second parameter is a list of the assigned commands names
 		# you could as well assign a manual list as second parameter
 		self.appendToolbar(LANG.chunk("settingsMenuText"), list(groups.keys()))
-		self.appendMenu(LANG.chunk("settingsMenuText"), list(fn.keys()))
+		# the groups again, as submenus: picks there go through the group, so its toolbar button follows
+		self.appendMenu(LANG.chunk("settingsMenuText"), list(groups.keys()))
 
 		# estimate commands
 		# TMYK: but assigning like this is actually cool, because it is dynamically extendable

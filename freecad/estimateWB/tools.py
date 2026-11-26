@@ -108,8 +108,8 @@ def roundup(number: float):
 		values below 1 keep at least SIGNIFICANT_DIGITS significant digits, so large units like m³ or ft³
 		don't round small parts to 0.00 (or 0.0353 ft³ up to 0.04)
 	"""
-	precision = FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Units").GetInt("Decimals")
-	precision = 2 if not precision else precision
+	# FreeCAD's default is 2 decimals when it hasn't been changed
+	precision = max(FreeCAD.ParamGet("User parameter:BaseApp/Preferences/Units").GetInt("Decimals", 2), 0)
 	# str() gives the shortest decimal that represents the float, so e.g. 2.675 rounds to 2.68 instead
 	# of following the binary 2.67499999... down to 2.67
 	value = Decimal(str(number))
@@ -117,10 +117,18 @@ def roundup(number: float):
 	if value and abs(value) < 1:
 		# adjusted() is the exponent of the first significant digit, e.g. -2 for 0.0353
 		small = value.quantize(Decimal("1e" + str(-max(precision, SIGNIFICANT_DIGITS - 1 - value.adjusted()))), rounding = ROUND_HALF_UP)
+		if small.adjusted() > value.adjusted():
+			# rounded up to the next power of ten (0.09996 to 0.1000), drop the now extra digit (0.100)
+			small = small.quantize(Decimal("1e" + str(-max(precision, SIGNIFICANT_DIGITS - 1 - small.adjusted()))))
 		# keep the extra digits only while the result stays below 1 (0.999999 is 1.00, not 1.000)
 		if abs(small) < 1:
 			rounded = small
 	return rounded
+
+
+def formatNumber(number: float):
+	""" the rounded number as plain digits, str() of a small Decimal would read e.g. 3.53E-8 """
+	return format(roundup(number), "f")
 
 
 def volumeOf(object: object):
@@ -148,11 +156,11 @@ def estimateVolume(*void):
 
 	volume /= float(estimateSettings.get("sizeScaleFactor"))
 	
-	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{roundup(volume)} {estimateSettings.get('sizeScale')}³"})
+	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{formatNumber(volume)} {estimateSettings.get('sizeScale')}³"})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
-		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
+		msgbox(LANG.chunk("resultVolumePopTitle"), msg, formatNumber(volume))
 
 
 def estimateWeight(material : Optional[str] = None, density : Optional[float] = None):
@@ -179,6 +187,10 @@ def estimateWeight(material : Optional[str] = None, density : Optional[float] = 
 	if density is None:
 		if material:
 			density = materials.get(material)
+			if density is None:
+				# e.g. a macro naming a custom material that has been removed since
+				report(LANG.chunk("resultUnknownMaterial", {":material": material}))
+				return
 		else:
 			density = promptDensity()
 			if not density:
@@ -191,8 +203,8 @@ def estimateWeight(material : Optional[str] = None, density : Optional[float] = 
 	mass = volume * density
 	mass = mass * float(estimateSettings.get("weightUnitFactor"))
 
-	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : f"{roundup(mass)} {estimateSettings.get('weightUnit')}", ":material": material if material else ""})
+	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : f"{formatNumber(mass)} {estimateSettings.get('weightUnit')}", ":material": material if material else ""})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
-		msgbox(LANG.chunk("resultWeightPopTitle"), msg, f"{roundup(mass)}")
+		msgbox(LANG.chunk("resultWeightPopTitle"), msg, formatNumber(mass))

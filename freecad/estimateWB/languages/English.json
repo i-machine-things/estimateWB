@@ -39,5 +39,11 @@
     "prefsMaterialDensity": "Density (g/cm³)",
     "prefsMaterialAdd": "Add",
     "prefsMaterialRemove": "Remove",
-    "prefsMaterialSkipped": "estimateWB: skipped custom material row :row, it needs a name and a density above 0"
+    "prefsMaterialSkipped": "estimateWB: skipped custom material row :row, it needs a name and a density above 0",
+    "resultUnknownMaterial": "Material :material is not in the material list",
+    "materialNoLongerListed": "Material :material is no longer in the material list, :fallback is picked instead",
+    "prefsMaterialsUnreadable": "estimateWB: the stored custom materials can't be read and are ignored, they stay stored until the list is changed in the preferences",
+    "prefsMaterialIgnored": "estimateWB: ignored stored custom material :name, its density isn't a number above 0",
+    "prefsMaterialReserved": "estimateWB: skipped custom material row :row, :name is the name of the custom density entry",
+    "prefsMaterialDuplicate": "estimateWB: custom material :name is listed in rows :row and :used, row :used is used"
 }

@@ -131,6 +131,12 @@ class Estimate_Weight_Custom(Estimate_Weight):
 
 ################################################################################
 
+def applySetting(setting: str, value: str):
+	""" sets a setting and shows the new option on its toolbar dropdown button """
+	estimateSettings.set(setting, value)
+	from . import init_gui
+	init_gui.syncSettingButton(setting)
+
 class Set_estimateSettings(BaseCommand):
 	"""
 		currently supported fnParams are
@@ -143,7 +149,7 @@ class Set_estimateSettings(BaseCommand):
 
 		see __init__.py resources.LANG and languages/*.json
 	"""
-	function = estimateSettings.set
+	function = applySetting
 	def __init__(self, *fnParams):
 		self.fnParams = fnParams
 		setting, value = fnParams
@@ -177,6 +183,8 @@ class Settings_Group():
 		return {"MenuText": LANG.chunk(self.setting + "_Group"),
 				"ToolTip": LANG.chunk(self.setting + "_Group"),
 				"DropDownMenu": True,
+				# not exclusive with checkable options: FreeCAD would then show the button itself as
+				# pressed after a pick. the button's icon is what shows the option in use
 				"Exclusive": False}
 	def IsActive(self):
 		return True

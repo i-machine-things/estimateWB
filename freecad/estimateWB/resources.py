@@ -23,12 +23,29 @@ with open(resourcefiles / "materials.json", "r", encoding="utf-8") as jsonfile:
 PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
 
 def getUserMaterials():
-	""" returns the user added materials as {name: density in g/cm³} """
+	"""
+		returns the user added materials as {name: density in g/cm³}
+		entries that aren't usable are skipped one by one, so one bad entry doesn't lose the others
+	"""
 	try:
 		user = json.loads(FreeCAD.ParamGet(PARAMS).GetString("userMaterials") or "{}")
-		return {str(name): float(density) for name, density in user.items() if isfinite(float(density)) and float(density) > 0}
-	except (ValueError, TypeError, AttributeError):
+	except ValueError:
+		user = None
+	if not isinstance(user, dict):
+		FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialsUnreadable") + "\n")
 		return {}
+	materials = {}
+	for name, density in user.items():
+		try:
+			density = float(density)
+		except (ValueError, TypeError):
+			density = 0.0
+		# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+		if isfinite(density) and density > 0:
+			materials[str(name)] = density
+		else:
+			FreeCAD.Console.PrintWarning(LANG.chunk("prefsMaterialIgnored", {":name": str(name)}) + "\n")
+	return materials
 
 def setUserMaterials(user: dict):
 	""" stores the user added materials and updates the material list """
@@ -43,10 +60,6 @@ def reloadMaterials():
 	materials.clear()
 	materials.update(baseMaterials)
 	materials.update(getUserMaterials())
-
-materials = {}
-reloadMaterials()
-
 
 class language:
 	def __init__(self):
@@ -73,3 +86,6 @@ class language:
 		return chunk
 
 LANG = language()
+
+materials = {}
+reloadMaterials()
