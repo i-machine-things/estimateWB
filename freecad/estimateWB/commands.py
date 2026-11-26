@@ -57,6 +57,26 @@ class Estimate_Volume(BaseCommand):
 
 ################################################################################
 
+class Estimate_Calculate():
+	"""
+		TMYK: a group command - one toolbar button with a dropdown arrow listing other commands.
+		FreeCAD runs the picked command itself because there's no Activated() here, and the button
+		takes over the icon of the last used one. it is not a BaseCommand, it only bundles commands
+	"""
+	def __init__(self, commands: list):
+		self.commands = commands
+	def GetCommands(self):
+		return tuple(self.commands)
+	def GetDefaultCommand(self):
+		return 0
+	def GetResources(self):
+		return {"MenuText": LANG.chunk("estimateCalculateName"),
+				"ToolTip": LANG.chunk("estimateCalculateToolTip"),
+				"DropDownMenu": True,
+				"Exclusive": False}
+	def IsActive(self):
+		return Selection.hasSelection()
+
 class Estimate_By_Material(BaseCommand):
 	# TMYK: the material comes from the combo box the workbench embeds next to this
 	# button in the toolbar (see init_gui.materialCombo), so this overrides Activated()

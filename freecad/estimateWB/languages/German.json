@@ -11,6 +11,8 @@
     "estimateVolumeToolTip": "Ungefähres Gewicht der ausgewählten Teile",
     "customDensityItem": "Spezifisch…",
     "customDensityItemSet": "Spezifisch (:density g/cm³)",
+    "estimateCalculateName": "Berechnen",
+    "estimateCalculateToolTip": "Ungefähres Gewicht oder Volumen der ausgewählten Körper",
     "estimateByMaterialName": "Gewicht nach Material",
     "estimateByMaterialToolTip": "Ungefähres Gewicht der ausgewählten Körper mit gewähltem Material",
 

@@ -11,6 +11,8 @@
     "estimateVolumeToolTip": "Selected bodies approximate volume",
     "customDensityItem": "Custom…",
     "customDensityItemSet": "Custom (:density g/cm³)",
+    "estimateCalculateName": "Calculate",
+    "estimateCalculateToolTip": "Selected body's approximate weight or volume",
     "estimateByMaterialName": "Weight by material",
     "estimateByMaterialToolTip": "Selected body's approximate weight using a picked material",
 
