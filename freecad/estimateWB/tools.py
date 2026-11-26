@@ -2,6 +2,7 @@ from .resources import materials, LANG
 from . import estimateSettings
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+from typing import Optional  # not str|None: that needs Python 3.10, older FreeCAD ships 3.8
 
 import FreeCAD
 import FreeCADGui
@@ -59,7 +60,7 @@ def saveToClipboard(textToSave: str):
 
 PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
 
-def promptDensity(default: float|None = None):
+def promptDensity(default: Optional[float] = None):
 	""" asks for a density in g/cm³, returns None if cancelled or not processable """
 	text, ok = QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"),
 		QtGui.QLineEdit.Normal, f"{default:g}" if default else "")
@@ -126,7 +127,7 @@ def estimateVolume(*void):
 		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
 
 
-def estimateWeight(material : str|None = None, density : float|None = None):
+def estimateWeight(material : Optional[str] = None, density : Optional[float] = None):
 	"""
 		calculates the weight of the selected objects according to the passed material and reports to the selected report option  
 		an explicitly passed density (e.g. the toolbar's custom density) takes precedence over the material lookup  

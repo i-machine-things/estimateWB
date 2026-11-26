@@ -1,24 +1,22 @@
-import freecad.estimateWB as module
-from importlib import resources
+from pathlib import Path
 import json
 import FreeCAD
 
-resourcefiles = resources.files(module) / "resources"
-languagefiles = resources.files(module) / "languages"
+# plain paths next to this file rather than importlib.resources.files(), which needs Python 3.9
+# while older FreeCAD versions ship 3.8. the workbench is always installed as a regular folder
+resourcefiles = Path(__file__).parent / "resources"
+languagefiles = Path(__file__).parent / "languages"
 
 
 def icon(name: str):
 	"""	returns an icon file path """
 	file = name + ".svg"
-	icon = resourcefiles / file
-	with resources.as_file(icon) as path:
-		return str(path)
+	return str(resourcefiles / file)
 
 
-with resources.as_file(resourcefiles / "materials.json") as path:
-	with open(str(path), "r", encoding="utf-8") as jsonfile:
-		""" preparing the material list with names and densities """
-		materials = json.loads(jsonfile.read().replace("\n", ""))
+with open(resourcefiles / "materials.json", "r", encoding="utf-8") as jsonfile:
+	""" preparing the material list with names and densities """
+	materials = json.loads(jsonfile.read().replace("\n", ""))
 
 
 class language:
