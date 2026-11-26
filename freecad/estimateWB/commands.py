@@ -34,7 +34,15 @@ class BaseCommand():
 			as opposed to the online ressources the parameters are converted to a tuple and json for string passing.
 			this allows for multiple parameters for commands
 		"""
-		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do('{json.dumps(self.fnParams)}')")
+		self.dispatch()
+
+	def dispatch(self):
+		"""
+			runs do() through FreeCAD's command line so it shows up in the python console and macros.
+			repr() turns the json into a properly escaped python string literal, so parameters with
+			quotes or backslashes (e.g. user named materials) survive the trip
+		"""
+		FreeCADGui.doCommandGui(f"freecad.estimateWB.commands.{self.__class__.__name__}.do({repr(json.dumps(self.fnParams))})")
 
 	@classmethod
 	def do(self, fnParams:str = ""):
@@ -57,26 +65,69 @@ class Estimate_Volume(BaseCommand):
 
 ################################################################################
 
-class Estimate_Weight(BaseCommand):
-	# TMYK: with a parameter for the function the command has to be set up with __init__()
-	function = tools.estimateWeight
-	def __init__(self, *fnParams):
-		self.fnParams = fnParams
-		self.name = LANG.chunk("estimateWeightName", {":option": fnParams[0]})
-		self.pixmap = icon(fnParams[0])
-		self.menuText = LANG.chunk("estimateWeightName", {":option": fnParams[0]})
-		self.toolTip = LANG.chunk("estimateWeightToolTip", {":option": fnParams[0]})
+class Estimate_Calculate():
+	"""
+		TMYK: a group command - one toolbar button with a dropdown arrow listing other commands.
+		FreeCAD runs the picked command itself because there's no Activated() here, and the button
+		takes over the icon of the last used one. it is not a BaseCommand, it only bundles commands
+	"""
+	def __init__(self, commands: list):
+		self.commands = commands
+	def GetCommands(self):
+		return tuple(self.commands)
+	def GetDefaultCommand(self):
+		return 0
+	def GetResources(self):
+		return {"MenuText": LANG.chunk("estimateCalculateName"),
+				"ToolTip": LANG.chunk("estimateCalculateToolTip"),
+				"DropDownMenu": True,
+				"Exclusive": False}
 	def IsActive(self):
 		return Selection.hasSelection()
 
-class Estimate_Weight_Custom(BaseCommand):
-	name = LANG.chunk("estimateWeightCustomName")
+class Estimate_By_Material(BaseCommand):
+	# TMYK: the material comes from the combo box the workbench embeds next to this
+	# button in the toolbar (see init_gui.materialCombo), so this overrides Activated()
+	# instead of just declaring fnParams up front
+	name = LANG.chunk("estimateByMaterialName")
 	function = tools.estimateWeight
-	pixmap = icon("none")
-	menuText = LANG.chunk("estimateWeightCustomName")
-	toolTip = LANG.chunk("estimateWeightCustomToolTip")
+	pixmap = icon("calculate")
+	menuText = LANG.chunk("estimateByMaterialName")
+	toolTip = LANG.chunk("estimateByMaterialToolTip")
 	def IsActive(self):
 		return Selection.hasSelection()
+	def Activated(self):
+		from . import init_gui
+		combo = init_gui.materialCombo
+		# comboAlive: a toolbar rebuild may have deleted the combo behind this reference
+		if not init_gui.comboAlive(combo):
+			tools.report("estimateWB: material combo box is not available, cannot estimate weight")
+			return
+		if combo.currentData() == init_gui.CUSTOM_DENSITY:
+			# custom density entry: the density was saved when it was picked in the combo,
+			# only prompt here as a fallback if there is none saved
+			density = tools.getCustomDensity()
+			if not density:
+				# promptDensity() already reported invalid input, cancelling just stops here
+				density = tools.promptDensity()
+				if not density:
+					return
+				tools.setCustomDensity(density)
+				init_gui.updateCustomItem(combo)
+			self.fnParams = (None, density)
+		else:
+			self.fnParams = (combo.currentText(),)
+		self.dispatch()
+
+class Estimate_Weight(BaseCommand):
+	"""
+		not a toolbar command anymore. kept so macros recorded before the material dropdown
+		still run, they contain lines like freecad.estimateWB.commands.Estimate_Weight.do('["PLA"]')
+	"""
+	function = tools.estimateWeight
+
+class Estimate_Weight_Custom(Estimate_Weight):
+	""" see Estimate_Weight, macros contain freecad.estimateWB.commands.Estimate_Weight_Custom.do('[]') """
 
 ################################################################################
 

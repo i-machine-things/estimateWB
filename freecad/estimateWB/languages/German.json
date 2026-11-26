@@ -9,10 +9,12 @@
     "estimateMenuText": "Estimate",
     "estimateVolumeName": "Volumen",
     "estimateVolumeToolTip": "Ungefähres Gewicht der ausgewählten Teile",
-    "estimateWeightCustomName": "Gewicht mit spezifischer Materialdichte",
-    "estimateWeightCustomToolTip": "Ungefähres Gewicht der ausgewählten Teile mit spezifischer Materialdichte",
-    "estimateWeightName": "Gewicht in :option",
-    "estimateWeightToolTip": "Ungefähres Gewicht der ausgewählten Körper in :option",
+    "customDensityItem": "Spezifisch…",
+    "customDensityItemSet": "Spezifisch (:density g/cm³)",
+    "estimateCalculateName": "Berechnen",
+    "estimateCalculateToolTip": "Ungefähres Gewicht oder Volumen der ausgewählten Körper",
+    "estimateByMaterialName": "Gewicht nach Material",
+    "estimateByMaterialToolTip": "Ungefähres Gewicht der ausgewählten Körper mit gewähltem Material",
 
     "promptDensityTitle": "Spezifisch",
     "promptDensityText": "Materialdichte in g/cm³ eingeben:",
@@ -22,7 +24,7 @@
     "resultWeightPopTitle": "Gewicht Ergebnis",
     "resultWeightPopCopy": "kopieren",
     "resultHasNoVolume": ":object hat keine Form oder Volumen",
-    "resultHasVolumeOf": "Auswahl hat ein Volumen von :volume",
-    "resultNeedsMaterialOf": "Auswahl benötigt etwa :amount :material",
+    "resultHasVolumeOf": "Volumen - :volume",
+    "resultNeedsMaterialOf": "Gewicht - :amount",
     "resultSelectionNoVolume": "Keines der markierten Objekte hat ein Volumen!"
 }

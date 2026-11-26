@@ -2,6 +2,8 @@ from .resources import materials, LANG
 from . import estimateSettings
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+from math import isfinite
+from typing import Optional  # not str|None: that needs Python 3.10, older FreeCAD ships 3.8
 
 import FreeCAD
 import FreeCADGui
@@ -12,9 +14,22 @@ from PySide import QtGui
 ################################################################################
 
 def report(msg: str):
-	""" prints the message to the report view panel """
+	""" prints the message to the report view panel and raises the panel, so it isn't missed """
+	showReportView()
 	now = datetime.now().strftime("%H:%M:%S")
 	FreeCAD.Console.PrintMessage(f"\n{now} {msg}")
+
+
+def showReportView():
+	""" raises the Report view panel so console output isn't missed if it's hidden/docked away """
+	window = FreeCADGui.getMainWindow()
+	report = window.findChild(QtGui.QDockWidget, "Report view") if window else None
+	if not report:
+		return
+	if report.isHidden():
+		report.show()
+	# raise_() also selects the Report view tab when it is tabified behind another dock
+	report.raise_()
 
 
 def msgbox(title: str, msg: str, copy: str):
@@ -40,6 +55,45 @@ def msgbox(title: str, msg: str, copy: str):
 def saveToClipboard(textToSave: str):
 	"""	copies the parameter to clipboard """
 	QtGui.QGuiApplication.clipboard().setText(textToSave)
+
+
+################################################################################
+# custom density
+################################################################################
+
+PARAMS = "User parameter:BaseApp/Preferences/Mod/estimateWB"
+
+def promptDensity(default: Optional[float] = None):
+	"""
+		asks for a density in g/cm³, returns None if cancelled or not processable
+		invalid input is reported, cancelling is not
+	"""
+	# str() keeps every digit of the saved density, :g would round it to 6 on the next OK
+	text, ok = QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"),
+		QtGui.QLineEdit.Normal, str(default) if default else "")
+	if not ok:
+		return None
+	try:
+		density = float(text.strip().replace(",", "."))
+	except ValueError:
+		density = None
+	# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+	if density is None or not isfinite(density) or density <= 0:
+		report(LANG.chunk("promptDensityError"))
+		return None
+	return density
+
+
+def getCustomDensity():
+	""" returns the saved custom density in g/cm³ or None if none has been saved yet """
+	density = FreeCAD.ParamGet(PARAMS).GetFloat("customDensity", 0.0)
+	# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+	return density if isfinite(density) and density > 0 else None
+
+
+def setCustomDensity(density: float):
+	""" saves the custom density in g/cm³ to the workbench preferences """
+	FreeCAD.ParamGet(PARAMS).SetFloat("customDensity", density)
 
 
 ################################################################################
@@ -78,17 +132,18 @@ def estimateVolume(*void):
 
 	volume /= float(estimateSettings.get("sizeScaleFactor"))
 	
-	msg = LANG.chunk("resultHasVolumeOf", {":volume" : str(roundup(volume)) + estimateSettings.get("sizeScale") + "³"})
+	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{roundup(volume)} {estimateSettings.get('sizeScale')}³"})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
 		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
 
 
-def estimateWeight(material : str|None = None):
+def estimateWeight(material : Optional[str] = None, density : Optional[float] = None):
 	"""
 		calculates the weight of the selected objects according to the passed material and reports to the selected report option  
-		prompts for density if no material has been passed
+		an explicitly passed density (e.g. the toolbar's custom density) takes precedence over the material lookup  
+		prompts for density if neither has been passed
 	"""
 	objects = FreeCADGui.Selection.getSelection()
 
@@ -105,18 +160,13 @@ def estimateWeight(material : str|None = None):
 	if material == "None": # even None, if passed, ends up a string here
 		material = None
 	
-	density = None
-
-	if material:
-		density = materials[material]
-	else:
-		try:
-			density = float(QtGui.QInputDialog.getText(None, LANG.chunk("promptDensityTitle"), LANG.chunk("promptDensityText"))[0].replace(",", "."))
-		except:
-			pass
-	if not density:
-		report(LANG.chunk("promptDensityError"))
-		return
+	if density is None:
+		if material:
+			density = materials[material]
+		else:
+			density = promptDensity()
+			if not density:
+				return  # cancelled, or invalid input that promptDensity() reported
 	
 	# FreeCAD reported volume is always mm³
 	# density is always g/cm³
@@ -125,7 +175,7 @@ def estimateWeight(material : str|None = None):
 	mass = volume * density
 	mass = mass * float(estimateSettings.get("weightUnitFactor"))
 
-	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : str(roundup(mass)) + estimateSettings.get("weightUnit"), ":material": material if material else ""})
+	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : f"{roundup(mass)} {estimateSettings.get('weightUnit')}", ":material": material if material else ""})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
