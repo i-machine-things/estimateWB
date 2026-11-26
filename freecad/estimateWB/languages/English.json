@@ -22,7 +22,7 @@
     "resultWeightPopTitle": "Weight result",
     "resultWeightPopCopy": "Copy",
     "resultHasNoVolume": ":object has neither shape nor volume",
-    "resultHasVolumeOf": "Selection has a volume of :volume",
-    "resultNeedsMaterialOf": ":amount",
+    "resultHasVolumeOf": "Volume - :volume",
+    "resultNeedsMaterialOf": "Weight - :amount",
     "resultSelectionNoVolume": "None of the selected objects have a volume!"
 }

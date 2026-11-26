@@ -119,7 +119,7 @@ def estimateVolume(*void):
 
 	volume /= float(estimateSettings.get("sizeScaleFactor"))
 	
-	msg = LANG.chunk("resultHasVolumeOf", {":volume" : str(roundup(volume)) + estimateSettings.get("sizeScale") + "³"})
+	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{roundup(volume)} {estimateSettings.get('sizeScale')}³"})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
@@ -163,7 +163,7 @@ def estimateWeight(material : str|None = None, density : float|None = None):
 	mass = volume * density
 	mass = mass * float(estimateSettings.get("weightUnitFactor"))
 
-	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : str(roundup(mass)) + estimateSettings.get("weightUnit"), ":material": material if material else ""})
+	msg = LANG.chunk("resultNeedsMaterialOf", {":amount" : f"{roundup(mass)} {estimateSettings.get('weightUnit')}", ":material": material if material else ""})
 	if estimateSettings.get("reportOutput") == "console":
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
