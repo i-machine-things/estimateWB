@@ -44,7 +44,8 @@ The code avoids Python 3.9+ features and has a fallback for Qt5, so these older 
     * **more units**: in³ and ft³ for volume, oz for weight
     * **result format**: results read *Weight - 0.665 g* and *Volume - 0.532 cm³* in the report view and popup, as the material is visible in the dropdown
     * **rounding**: results below 1 keep at least 3 significant digits instead of turning into 0.00 in large units, and rounding no longer trips over binary floating point (2.675 now rounds to 2.68)
-    * **report view raised on calculate**: the report view panel is brought to the front if it's hidden or behind another tab
+    * **report view raised on output**: when the workbench prints a result or an error to the report view, the panel is brought to the front if it's hidden or behind another tab
+    * **command names**: the per-material commands (*Estimate_PLA_Weight* and the like) and *Estimate_Weight_Custom* are gone, so custom toolbars or shortcuts using them need to be set up again with *Estimate_Calculate*. Recorded macros calling *Estimate_Weight.do(...)* or *Estimate_Weight_Custom.do(...)* still run
     * **older Python**: the workbench loads on Python 3.8 again, which FreeCAD 0.19 and many 0.21 builds ship (newer-only type hints and resource loading are replaced)
     * **cleanup**: the outdated root level copy of the workbench (pre-restructure python files, languages and icons) and the no longer used per-material, custom density and output toggle icons are removed
 * 0.1.5
@@ -73,7 +74,7 @@ Two toolbars are available:
     * metals: aluminium, brass, bronze, copper, gold, iron, lead, magnesium, mercury, nickel, platinum, silver, steel, tin alloys, titanium, tungsten and zinc
     * your own materials from the [preferences](#preferences)
     * *Custom…* at the end of the list asks for a decimal density in g/cm³ (comma or dot), saves it and shows it in the dropdown, e.g. *Custom (1.38 g/cm³)*. Pick it again to change the density. The saved density is kept across FreeCAD restarts
-* The calculate button (scale icon) next to the dropdown returns the estimated weight of the selected objects for the picked material. The arrow next to it switches between *Weight by material* and *Volume*, the button keeps the last used one. If the report view panel is hidden it is brought to the front, so the result isn't missed
+* The calculate button (scale icon) next to the dropdown returns the estimated weight of the selected objects for the picked material. The arrow next to it switches between *Weight by material* and *Volume*, the button keeps the last used one. With results going to the report view, a hidden report view panel is brought to the front, so the result isn't missed
 
 ![Calculate button menu](freecad/estimateWB/resources/screenshot_calculate.png)
 *The arrow next to the calculate button switches between weight and volume.*
