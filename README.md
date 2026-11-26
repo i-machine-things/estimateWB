@@ -2,7 +2,7 @@
 
 A FreeCAD workbench to estimate material quantity by volume or weight for selected parts
 
-> **This is a fork.** The Estimate workbench is the work of [error on line 1](https://github.com/erroronline1) - the original lives at [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) and is available in FreeCAD's Addon Manager as-is. All credit for the workbench goes to them and its contributors [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid), [@chennes](https://github.com/chennes) and [@luzpaz](https://github.com/luzpaz). Since November 2026 this fork's [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) has modified it: it reworks the toolbar and adds preferences, units and materials, see [*unreleased*](#version-update) for what changed and [Installation](#installation) for how to install it.
+> **This is a fork.** The Estimate workbench is the work of [error on line 1](https://github.com/erroronline1) - the original lives at [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) and is available in FreeCAD's Addon Manager as-is. All credit for the workbench goes to them and its contributors [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid), [@chennes](https://github.com/chennes) and [@luzpaz](https://github.com/luzpaz). Since November 2026 this fork's [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) has modified it: it reworks the toolbar and adds preferences, units and materials, see [*0.1.0*](#version-update) for what changed and [Installation](#installation) for how to install it.
 
 ### Background
 [This frankenstein's monster of a workbench](#about-the-code) for FreeCAD has been somehow sewn together to work almost as expected.
@@ -12,7 +12,7 @@ You can display the volume or expected weight of selected objects at the push of
 Common 3d-printing materials and a range of metals are supported by default, you can add your own materials in the preferences, and you can always pick a one-off custom density in g/cm³ from the same material dropdown.
 
 ![Estimate workbench with a weight result popup](freecad/estimateWB/resources/screenshot.png)
-*The Pozidriv bit from FreeCAD's PartDesign example, selected with PLA picked: the volume shows in the report view, the weight in a popup with a copy button. The toolbar on the left holds the unit buttons, the material dropdown and the calculate button.*
+*The Pozidriv bit from FreeCAD's PartDesign example, selected with PLA picked: the volume from an earlier run in the report view, the weight in a popup with a copy button after switching the output to popup in the preferences. The toolbar on the left holds the unit buttons, the material dropdown and the calculate button.*
 
 ### Version compatibility
 
@@ -29,25 +29,30 @@ Confirmed for 0.1.5, not yet tested since the toolbar rework:
 * 0.21.2
 * 0.19
 
-The code avoids Python 3.9+ features and has a fallback for Qt5, so these older versions are expected to work. Reports either way are welcome in [this fork's issue queue](https://github.com/i-machine-things/estimateWB/issues).
+The code avoids Python 3.9+ features and has a fallback for Qt5, but the dropdown buttons and the preferences page haven't been tried on these versions yet. Reports either way are welcome in [this fork's issue queue](https://github.com/i-machine-things/estimateWB/issues).
 
 </details>
 
 ### Version update
-* unreleased
+This fork numbers its releases on its own, starting at 0.1.0 - fork 0.1.0 builds on upstream 0.1.5 and contains everything in it.
+
+#### This fork ([i-machine-things/estimateWB](https://github.com/i-machine-things/estimateWB), `custom` branch)
+* 0.1.0 (2026-11-26)
     * **material dropdown instead of one button per material**: the estimate toolbar had a button for every material, which doesn't scale beyond a handful of materials. Materials are now picked from a dropdown, limited to 10 visible entries with a scrollbar
     * **one calculate button for weight and volume**: weight and volume share a single toolbar button with a dropdown arrow, like FreeCAD's own grouped commands, placed after the material dropdown
-    * **metals added**: aluminium, brass, bronze, copper, gold, iron, lead, magnesium, mercury, nickel, platinum, silver, steel, tin alloys, titanium, tungsten and zinc densities. These were stranded in an outdated copy of the workbench in the repository root since the restructure and are now part of the actual workbench
+    * **metals added**: aluminium, brass, bronze, copper, gold, iron, lead, magnesium, mercury, nickel, platinum, silver, steel, tin alloys, titanium, tungsten and zinc densities, listed by their names in materials.json (e.g. *Brass_Red*, *Tin_Soft_Solder*). These were stranded in an outdated copy of the workbench in the repository root since the restructure and are now part of the actual workbench
     * **custom density moved into the dropdown**: the separate custom density button is replaced by the *Custom…* entry, which prompts once, remembers the density across restarts and is used by the calculate button like any other material
     * **preferences page**: report view / popup output moved from the toolbar to *Edit → Preferences → Estimate*, which also lets you add your own materials
-    * **unit buttons**: the six unit buttons are two dropdown buttons, one for volume and one for weight, each showing the unit in use
+    * **unit buttons**: the six unit buttons are two dropdown buttons, one for volume and one for weight, each showing the unit in use. The *Estimate Settings* menu has them as submenus
     * **more units**: in³ and ft³ for volume, oz for weight
     * **result format**: results read *Weight - 0.665 g* and *Volume - 0.532 cm³* in the report view and popup, as the material is visible in the dropdown
     * **rounding**: results below 1 keep at least 3 significant digits instead of turning into 0.00 in large units, and rounding no longer trips over binary floating point (2.675 now rounds to 2.68)
     * **report view raised on output**: when the workbench prints a result or an error to the report view, the panel is brought to the front if it's hidden or behind another tab
-    * **command names**: the per-material commands (*Estimate_PLA_Weight* and the like) and *Estimate_Weight_Custom* are gone, so custom toolbars or shortcuts using them need to be set up again with *Estimate_Calculate*. Recorded macros calling *Estimate_Weight.do(...)* or *Estimate_Weight_Custom.do(...)* still run
+    * **command names**: the per-material commands (*Estimate_PLA_Weight* and the like) and *Estimate_Weight_Custom* are gone, so custom toolbars or shortcuts using them need to be set up again with *Estimate_Calculate*. The output commands *Report_console* and *Report_popup* are gone too, the output is set in *Edit → Preferences → Estimate*. Recorded macros calling *Estimate_Weight.do(...)*, *Estimate_Weight_Custom.do(...)* or *Set_estimateSettings.do(...)* still run
     * **older Python**: the workbench loads on Python 3.8 again, which FreeCAD 0.19 and many 0.21 builds ship (newer-only type hints and resource loading are replaced)
     * **cleanup**: the outdated root level copy of the workbench (pre-restructure python files, languages and icons) and the no longer used per-material, custom density and output toggle icons are removed
+
+#### Upstream ([erroronline1/estimateWB](https://github.com/erroronline1/estimateWB))
 * 0.1.5
     * same functionality, new codebase
     * settings as a single menu item and toolbar
@@ -63,7 +68,7 @@ Two toolbars are available:
 **Estimate Settings**
 * The volume unit button sets the output for the volume in mm³, cm³, m³, in³ or ft³
 * The weight unit button sets the output for the weight in g, kg, lb or oz
-* Both buttons show the unit in use, the arrow next to them lists the others. The *Estimate Settings* menu lists all units as well
+* Both buttons show the unit in use, the arrow next to them lists the others. The *Estimate Settings* menu has the same two lists as submenus
 
 ![Volume unit menu](freecad/estimateWB/resources/screenshot_units.png)
 *The volume unit button's menu, top left. The weight unit button next to it works the same way.*
@@ -94,11 +99,11 @@ Two toolbars are available:
 ![Estimate preferences page](freecad/estimateWB/resources/screenshot_preferences.png)
 *Edit → Preferences → Estimate with the result output choice and two custom materials.*
 
-Thats all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³. So any output will be in metric units by default, lb and weight units toolbar work of [@zackwhit](https://github.com/zackwhit/). They also added a popup that has been applied to the volume as well in version 0.1.4 - now selectable for either report view or popup in the preferences.
+That's all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³. So any output will be in metric units by default, lb and weight units toolbar work of [@zackwhit](https://github.com/zackwhit/). They also added a popup that has been applied to the volume as well in version 0.1.4 - now selectable for either report view or popup in the preferences.
 
 [@PhoneDroid](https://github.com/PhoneDroid) added the result for *all selected* parts, [@chennes](https://github.com/chennes) contributed packaging and encoding fixes, [@luzpaz](https://github.com/luzpaz) tidied up typos and the readme.
 
-### Installation 
+### Installation
 
 This fork is installed from its `custom` branch. If the original Estimate workbench is installed, uninstall it first: both install into the same `estimateWB` folder and Python package.
 
@@ -175,4 +180,4 @@ Modifications on the `custom` branch Copyright (C) 2026 i-machine-things
 
 estimateWB is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE.txt](LICENSE.txt) for the LGPL and [COPYING](COPYING) for the GNU General Public License it builds on.
 
-This fork has been modified from the original since November 2026, the changes are listed under [*unreleased*](#version-update) and in the git history.
+This fork has been modified from the original since November 2026, the changes are listed under [*0.1.0*](#version-update) and in the git history.

@@ -11,8 +11,8 @@
     <!--[ Versions ]―――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
     <freecadmin>0.19.0</freecadmin>
-    <version>0.1.5</version>
-    <date>2025-09-15</date>
+    <version>0.1.0</version>
+    <date>2026-11-26</date>
 
     <!--[ Info ]―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
@@ -28,8 +28,8 @@
     <!--[ Maintainers ]――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
     <maintainer
-        email = 'dev@erroronline.one'
-    >error on line 1</maintainer>
+        email = 'allann2020@gmail.com'
+    >Allan Noble</maintainer>
 
     <!--[ Authors ]――――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 

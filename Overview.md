@@ -8,8 +8,8 @@ You can display the volume or expected weight of selected objects at the push of
 
 Common 3d-printing materials and a range of metals are supported by default, you can add your own materials in the preferences, and you can always pick a one-off custom density in g/cm³ from the same material dropdown.
 
-![Estimate workbench with a weight result popup](freecad/estimateWB/resources/screenshot.png)
-*The Pozidriv bit from FreeCAD's PartDesign example, selected with PLA picked: the volume shows in the report view, the weight in a popup with a copy button. The toolbar on the left holds the unit buttons, the material dropdown and the calculate button.*
+![Estimate workbench with a weight result popup](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot.png)
+*The Pozidriv bit from FreeCAD's PartDesign example, selected with PLA picked: the volume from an earlier run in the report view, the weight in a popup with a copy button after switching the output to popup in the preferences. The toolbar on the left holds the unit buttons, the material dropdown and the calculate button.*
 
 ### Usage
 
@@ -20,9 +20,9 @@ Two toolbars are available:
 **Estimate Settings**
 * The volume unit button sets the output for the volume in mm³, cm³, m³, in³ or ft³
 * The weight unit button sets the output for the weight in g, kg, lb or oz
-* Both buttons show the unit in use, the arrow next to them lists the others. The *Estimate Settings* menu lists all units as well
+* Both buttons show the unit in use, the arrow next to them lists the others. The *Estimate Settings* menu has the same two lists as submenus
 
-![Volume unit menu](freecad/estimateWB/resources/screenshot_units.png)
+![Volume unit menu](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot_units.png)
 *The volume unit button's menu, top left. The weight unit button next to it works the same way.*
 
 **Estimate**
@@ -33,13 +33,13 @@ Two toolbars are available:
     * *Custom…* at the end of the list asks for a decimal density in g/cm³ (comma or dot), saves it and shows it in the dropdown, e.g. *Custom (1.38 g/cm³)*. Pick it again to change the density. The saved density is kept across FreeCAD restarts
 * The calculate button (scale icon) next to the dropdown returns the estimated weight of the selected objects for the picked material. The arrow next to it switches between *Weight by material* and *Volume*, the button keeps the last used one. With results going to the report view, a hidden report view panel is brought to the front, so the result isn't missed
 
-![Calculate button menu](freecad/estimateWB/resources/screenshot_calculate.png)
+![Calculate button menu](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot_calculate.png)
 *The arrow next to the calculate button switches between weight and volume.*
 
-![Material dropdown](freecad/estimateWB/resources/screenshot_materials.png)
+![Material dropdown](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot_materials.png)
 *The end of the material dropdown: the last built-in metals, two custom materials from the preferences and the saved custom density.*
 
-![Custom density prompt](freecad/estimateWB/resources/screenshot_custom_density.png)
+![Custom density prompt](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot_custom_density.png)
 *Picking Custom… asks for a density; the dropdown then shows it, here Custom (1.38 g/cm³).*
 
 ### Preferences
@@ -48,7 +48,7 @@ Two toolbars are available:
 * **Result output**: show results in the report view or as a popup with a copy button
 * **Custom materials**: add materials with a name and a density in g/cm³, they are listed in the material dropdown after the built-in ones. A material with the name of a built-in one replaces its density. Changes apply to the dropdown right away
 
-![Estimate preferences page](freecad/estimateWB/resources/screenshot_preferences.png)
+![Estimate preferences page](https://raw.githubusercontent.com/i-machine-things/estimateWB/custom/freecad/estimateWB/resources/screenshot_preferences.png)
 *Edit → Preferences → Estimate with the result output choice and two custom materials.*
 
 Thats all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³.
