@@ -2,6 +2,8 @@
 
 A FreeCAD workbench to estimate material quantity by volume or weight for selected parts
 
+> **This is a fork.** The Estimate workbench is the work of [error on line 1](https://github.com/erroronline1) - the original lives at [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) and is available in FreeCAD's Addon Manager as-is. All credit for the workbench goes to them and its contributors [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid) and [@chennes](https://github.com/chennes). This fork's [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) reworks the toolbar and adds preferences, units and materials, see [*unreleased*](#version-update) for what changed and [Installation](#installation) for how to install it.
+
 ### Background
 [This frankenstein's monster of a workbench](#about-the-code) for FreeCAD has been somehow sewn together to work almost as expected.
 
@@ -93,25 +95,50 @@ Two toolbars are available:
 
 Thats all. Basically the workbench reads the objects shape.volume-property provided by FreeCAD, which is conveniently returned in mm³. So any output will be in metric units by default, lb and weight units toolbar work of [@zackwhit](https://github.com/zackwhit/). They also added a popup that has been applied to the volume as well in version 0.1.4 - now selectable for either report view or popup in the preferences.
 
-[@PhoneDroid](https://github.com/PhoneDroid) added the result for *all selected* parts.
+[@PhoneDroid](https://github.com/PhoneDroid) added the result for *all selected* parts, [@chennes](https://github.com/chennes) contributed packaging and encoding fixes.
 
 ### Installation 
 
-#### Automatic Installation (recommended)
+This fork is installed from its `custom` branch. If the original Estimate workbench is installed, uninstall it first: both install into the same `estimateWB` folder and Python package.
 
-This workbench is available via the FreeCAD [Addon Manager](https://wiki.freecad.org/Std_AddonMgr).
+#### Addon Manager with a custom repository (recommended)
+
+1. Open *Edit → Preferences → Addon Manager*
+2. Under *Custom repositories* click the add button next to the list and enter
+    * Repository URL: `https://github.com/i-machine-things/estimateWB`
+    * Branch: `custom`
+3. Click *OK* to close the preferences
+4. Open *Tools → Addon manager*, refresh the list if the workbench doesn't show up yet, select **estimateWB** and click *Install*
+5. Restart FreeCAD
+
+Updates then come through the Addon Manager like for any other addon.
+
+<details>
+<summary>FreeCAD 0.19 / 0.20</summary>
+
+Older versions set custom repositories in *Tools → Addon manager → Configure...* (not verified for this fork): add a line `https://github.com/i-machine-things/estimateWB custom` (URL, a space, then the branch) to the *Custom repositories* box, close the dialog and restart the Addon Manager.
+
+</details>
 
 #### Manual Installation
 
 <details>
 <summary>Expand for directions to manually install this workbench</summary>
 
-This workbench can be installed manually by adding the whole folder into the personal FreeCAD folder
+Clone the `custom` branch into the personal FreeCAD `Mod` folder, e.g.
+
+```
+git clone --branch custom https://github.com/i-machine-things/estimateWB.git estimateWB
+```
+
+or download [the branch as a zip](https://github.com/i-machine-things/estimateWB/archive/refs/heads/custom.zip) and unpack it there as a folder named `estimateWB`. The `Mod` folder is
 
 - for Linux `~/.local/share/FreeCAD/Mod/` or `~/.var/app/org.freecad.FreeCAD/data/FreeCAD/Mod`
 - for Windows `%APPDATA%\FreeCAD\Mod\` or `C:\Users\username\Appdata\Roaming\FreeCAD\Mod\`
 - for Windows as portable app `wherever_stored\FreeCADPortable\Data\FreeCADAppData\Mod`
 - for macOS `~/Library/Preferences/FreeCAD/Mod/`
+
+FreeCAD 1.1 and newer keep a folder per version, so `Mod` sits one level deeper there, e.g. `~/.local/share/FreeCAD/v1-1/Mod/`. *Help → About FreeCAD → Copy to clipboard* shows the exact user data folder.
 
 </details>
 

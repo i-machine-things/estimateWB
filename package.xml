@@ -51,12 +51,12 @@
 
     <url
         type = 'documentation'
-    >https://github.com/erroronline1/estimateWB</url>
+    >https://github.com/i-machine-things/estimateWB/tree/custom</url>
 
     <url
-        branch = 'main'
+        branch = 'custom'
         type = 'repository'
-    >https://github.com/erroronline1/estimateWB</url>
+    >https://github.com/i-machine-things/estimateWB</url>
 
     <url
         type = 'bugtracker'
@@ -68,11 +68,11 @@
 
     <url
         type = 'website'
-    >https://github.com/erroronline1/estimateWB</url>
+    >https://github.com/i-machine-things/estimateWB/tree/custom</url>
 
     <url
         type = 'readme'
-    >https://github.com/erroronline1/estimateWB/blob/main/Overview.md</url>
+    >https://github.com/i-machine-things/estimateWB/blob/custom/Overview.md</url>
 
     <!--[ Content ]――――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 

@@ -2,6 +2,8 @@
 
 A FreeCAD workbench to estimate material quantity by volume or weight for selected parts
 
+> **This is a fork** of [erroronline1/estimateWB](https://github.com/erroronline1/estimateWB) by [error on line 1](https://github.com/erroronline1), who wrote the workbench, with contributions from [@zackwhit](https://github.com/zackwhit), [@PhoneDroid](https://github.com/PhoneDroid) and [@chennes](https://github.com/chennes). This [`custom` branch](https://github.com/i-machine-things/estimateWB/tree/custom) reworks the toolbar and adds preferences, units and materials.
+
 You can display the volume or expected weight of selected objects at the push of a button. Both display with the decimal precision as set in FreeCAD's settings (2 by default if not specified), results below 1 keep at least 3 significant digits so small parts don't show as 0.00 in large units like m³ or ft³. Rounding is to the nearest value, so a defined 1cm³ cube displays 1.00 cm³ and not 1.01 cm³ due to floating point offsets. The output enables you to estimate or calculate the necessary amount of material for additive manufacturing - @100 % infill, ignoring support structures, purging and other slicer settings that add anyway.
 
 Common 3d-printing materials and a range of metals are supported by default, you can add your own materials in the preferences, and you can always pick a one-off custom density in g/cm³ from the same material dropdown.
