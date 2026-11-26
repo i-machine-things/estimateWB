@@ -2,6 +2,7 @@ from .resources import materials, LANG
 from . import estimateSettings
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+from math import isfinite
 from typing import Optional  # not str|None: that needs Python 3.10, older FreeCAD ships 3.8
 
 import FreeCAD
@@ -70,13 +71,15 @@ def promptDensity(default: Optional[float] = None):
 		density = float(text.replace(",", "."))
 	except ValueError:
 		return None
-	return density if density > 0 else None
+	# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+	return density if isfinite(density) and density > 0 else None
 
 
 def getCustomDensity():
 	""" returns the saved custom density in g/cm³ or None if none has been saved yet """
 	density = FreeCAD.ParamGet(PARAMS).GetFloat("customDensity", 0.0)
-	return density if density > 0 else None
+	# isfinite: "inf" parses and is > 0, but can't be rounded for the result
+	return density if isfinite(density) and density > 0 else None
 
 
 def setCustomDensity(density: float):

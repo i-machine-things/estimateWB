@@ -11,6 +11,15 @@ materialCombo = None
 # item data marking the combo's custom density entry (material entries carry no data)
 CUSTOM_DENSITY = "__custom_density__"
 
+# the last picked combo entry (material name or CUSTOM_DENSITY). kept outside the combo because
+# FreeCAD rebuilds the toolbar when switching workbenches, which replaces the combo
+lastPick = None
+
+
+def _rememberPick(combo):
+	global lastPick
+	lastPick = combo.currentData() if combo.currentData() == CUSTOM_DENSITY else combo.currentText()
+
 
 def updateCustomItem(combo):
 	""" labels the custom density entry with the saved density, if there is one """
@@ -40,10 +49,9 @@ def _onMaterialActivated(combo, index):
 		updateCustomItem(combo)
 		combo.setProperty("estimatePreviousIndex", index)
 		return
+	# cancelled: go back to what was picked before (that is the custom entry itself when re-picking it)
 	previous = combo.property("estimatePreviousIndex")
-	if tools.getCustomDensity() is None or previous is None:
-		# nothing usable to stay on, go back to what was picked before
-		combo.setCurrentIndex(previous if previous is not None else 0)
+	combo.setCurrentIndex(previous if previous is not None else 0)
 
 
 def _findCalculateButton():
@@ -160,8 +168,13 @@ class estimateWB(FreeCADGui.Workbench):
 		# custom density lives in the same dropdown, see _onMaterialActivated()
 		combo.addItem(LANG.chunk("customDensityItem"), CUSTOM_DENSITY)
 		updateCustomItem(combo)
-		combo.setProperty("estimatePreviousIndex", 0)
+		# restore the pick from before a toolbar rebuild, if any
+		if lastPick is not None:
+			index = combo.findData(CUSTOM_DENSITY) if lastPick == CUSTOM_DENSITY else combo.findText(lastPick)
+			combo.setCurrentIndex(max(index, 0))
+		combo.setProperty("estimatePreviousIndex", combo.currentIndex())
 		combo.activated.connect(lambda index, c = combo: _onMaterialActivated(c, index))
+		combo.currentIndexChanged.connect(lambda index, c = combo: _rememberPick(c))
 		# inserted right before the calculate button, which reads this combo's
 		# current selection when clicked
 		toolbar.insertWidget(anchor, combo)
