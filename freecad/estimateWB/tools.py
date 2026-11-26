@@ -125,6 +125,7 @@ def estimateVolume(*void):
 	
 	msg = LANG.chunk("resultHasVolumeOf", {":volume" : f"{roundup(volume)} {estimateSettings.get('sizeScale')}³"})
 	if estimateSettings.get("reportOutput") == "console":
+		showReportView()
 		report(msg)
 	elif estimateSettings.get("reportOutput") == "popup":
 		msgbox(LANG.chunk("resultVolumePopTitle"), msg, f"{str(roundup(volume))}")
