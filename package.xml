@@ -60,11 +60,7 @@
 
     <url
         type = 'bugtracker'
-    >https://github.com/erroronline1/estimateWB/issues</url>
-    
-    <url
-        type = 'discussion'
-    >https://forum.freecad.org/viewtopic.php?t=67078</url>
+    >https://github.com/i-machine-things/estimateWB/issues</url>
 
     <url
         type = 'website'

@@ -29,7 +29,7 @@ Confirmed for 0.1.5, not yet tested since the toolbar rework:
 * 0.21.2
 * 0.19
 
-The code avoids Python 3.9+ features and has a fallback for Qt5, so these older versions are expected to work. Reports either way are welcome in the [issue queue](https://github.com/erroronline1/estimateWB/issues).
+The code avoids Python 3.9+ features and has a fallback for Qt5, so these older versions are expected to work. Reports either way are welcome in [this fork's issue queue](https://github.com/i-machine-things/estimateWB/issues).
 
 </details>
 
@@ -150,7 +150,7 @@ Different languages according to user settings are technically supported - but a
 
 ### Bug/Feedback
 
-Please report bugs to the [issue queue](https://github.com/erroronline1/estimateWB/issues) and ping the [dedicated estimateWB FreeCAD forum thread](https://forum.freecad.org/viewtopic.php?f=22&t=67078) to discuss said issue or feedback in general.   
+Please report bugs and feedback for this fork in [its issue queue](https://github.com/i-machine-things/estimateWB/issues). The original workbench's issue queue and forum thread are for the original only, so please don't take problems with this fork there.   
 
 ### About the code
 Base of everything has been
