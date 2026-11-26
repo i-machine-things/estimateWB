@@ -22,12 +22,8 @@ def showReportView():
 	report = FreeCADGui.getMainWindow().findChild(QtGui.QDockWidget, "Report view")
 	if not report:
 		return
-	# same as FreeCAD's own DockWindowManager::activate(): go through the dock's toggle action
-	# rather than show(), because with overlay panels enabled a closed Report view isn't
-	# isHidden() - only its toggle action knows it's closed
-	toggle = report.toggleViewAction()
-	if not toggle.isChecked():
-		toggle.trigger()
+	if report.isHidden():
+		report.show()
 	# raise_() also selects the Report view tab when it is tabified behind another dock
 	report.raise_()
 
