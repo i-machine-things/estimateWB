@@ -1,15 +1,15 @@
 [project]
 name = "estimateWB"
-version = "0.1.5"
+version = "0.1.0"
 description = "A FreeCAD workbench to estimate material quantity by volume or weight for selected parts"
 authors = [
   {name = "error on line 1", email = "dev@erroronline.one"},
 ]
 maintainers = [
-  {name = "error on line 1", email = "dev@erroronline.one"}
+  {name = "Allan Noble", email = "allann2020@gmail.com"}
 ]
 license = "LGPL-3.0-or-later"
-license-files = ["LICEN[CS]E.*"]
+license-files = ["LICEN[CS]E.*", "COPYING"]
 readme = "README.md"
 keywords = ["estimate", "addon", "freecad", "workbench"]
 
