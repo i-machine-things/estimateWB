@@ -15,12 +15,19 @@ Common 3d-printing materials and a range of metals are supported by default, you
 ### Version compatibility
 
 <details>
-<summary>Confirmed latest stable FreeCad version 1.1 - Expand for more</summary>
+<summary>Confirmed with FreeCAD 26.3rc2 and 1.1.4 - Expand for more</summary>
 
+Tested with the current toolbar, preferences and units:
+* 26.3rc2 (Linux, Qt 6.11, Python 3.13) - all features
+* 1.1.4 (Linux Flatpak) - weight and volume results
+
+Confirmed for 0.1.5, not yet tested since the toolbar rework:
 * 1.1rc build 40041 x86_64
 * 1.0
 * 0.21.2
 * 0.19
+
+The code avoids Python 3.9+ features and has a fallback for Qt5, so these older versions are expected to work. Reports either way are welcome in the [issue queue](https://github.com/erroronline1/estimateWB/issues).
 
 </details>
 
@@ -36,6 +43,7 @@ Common 3d-printing materials and a range of metals are supported by default, you
     * **result format**: results read *Weight - 0.665 g* and *Volume - 0.532 cm³* in the report view and popup, as the material is visible in the dropdown
     * **rounding**: results below 1 keep at least 3 significant digits instead of turning into 0.00 in large units, and rounding no longer trips over binary floating point (2.675 now rounds to 2.68)
     * **report view raised on calculate**: the report view panel is brought to the front if it's hidden or behind another tab
+    * **older Python**: the workbench loads on Python 3.8 again, which FreeCAD 0.19 and many 0.21 builds ship (newer-only type hints and resource loading are replaced)
     * **cleanup**: the outdated root level copy of the workbench (pre-restructure python files, languages and icons) and the no longer used per-material, custom density and output toggle icons are removed
 * 0.1.5
     * same functionality, new codebase
