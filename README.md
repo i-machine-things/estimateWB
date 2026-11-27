@@ -32,6 +32,9 @@ The code avoids Python 3.9+ features and has a fallback for Qt5, but the dropdow
 This fork numbers its releases on its own, starting at 0.1.0 - fork 0.1.0 builds on upstream 0.1.5 and contains everything in it.
 
 #### This fork ([i-machine-things/estimateWB](https://github.com/i-machine-things/estimateWB), `custom` branch)
+* 0.1.1 (2026-11-26)
+    * **readme in the Addon Manager**: FreeCAD 1.1's Addon Manager shows this readme before the workbench is installed and can't render collapsible sections, which scrambled the version list and the install directions. They are plain sections now
+    * **install directions**: the original installs into an *Estimate* folder, not *estimateWB*, but both contain the same Python package, so only one of them can load. The Addon Manager step now says how to tell the two *estimateWB* entries apart
 * 0.1.0 (2026-11-26)
     * **material dropdown instead of one button per material**: the estimate toolbar had a button for every material, which doesn't scale beyond a handful of materials. Materials are now picked from a dropdown, limited to 10 visible entries with a scrollbar
     * **one calculate button for weight and volume**: weight and volume share a single toolbar button with a dropdown arrow, like FreeCAD's own grouped commands, placed after the material dropdown
@@ -165,4 +168,4 @@ Modifications on the `custom` branch Copyright (C) 2026 i-machine-things
 
 estimateWB is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE.txt](LICENSE.txt) for the LGPL and [COPYING](COPYING) for the GNU General Public License it builds on.
 
-This fork has been modified from the original since November 2026, the changes are listed under [*0.1.0*](#version-update) and in the git history.
+This fork has been modified from the original since November 2026, the changes are listed under [*Version update*](#version-update) and in the git history.

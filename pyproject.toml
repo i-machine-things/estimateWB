@@ -1,6 +1,6 @@
 [project]
 name = "estimateWB"
-version = "0.1.0"
+version = "0.1.1"
 description = "A FreeCAD workbench to estimate material quantity by volume or weight for selected parts"
 authors = [
   {name = "error on line 1", email = "dev@erroronline.one"},
