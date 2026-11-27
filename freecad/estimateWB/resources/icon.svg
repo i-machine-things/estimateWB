@@ -147,4 +147,36 @@
      d="m 13.613431,20.602144 -0.0728,21.76693 c 0,0 0.129199,13.203082 -8.9542888,7.643904 C -1.3141167,46.401843 6.7703159,37.273136 9.4638825,34.142777 12.982087,30.054056 13.613431,20.602144 13.613431,20.602144 Z"
      id="path11"
      sodipodi:nodetypes="ccssc" />
+  <g
+     id="fork-badge"
+     inkscape:label="fork badge">
+    <circle
+       style="fill:#b48ead;fill-opacity:1;stroke:#000000;stroke-width:2;stroke-opacity:1"
+       id="fork-badge-disc"
+       cx="51.75"
+       cy="51.75"
+       r="11.75" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+       d="m 46.75,46.75 v 1.5 c 0,2.5 5,2 5,4.5 m 5,-6 v 1.5 c 0,2.5 -5,2 -5,4.5 v 4.5"
+       id="fork-badge-lines" />
+    <circle
+       style="fill:#eceff4;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-opacity:1"
+       id="fork-badge-node-left"
+       cx="46.75"
+       cy="45"
+       r="2" />
+    <circle
+       style="fill:#eceff4;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-opacity:1"
+       id="fork-badge-node-right"
+       cx="56.75"
+       cy="45"
+       r="2" />
+    <circle
+       style="fill:#eceff4;fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-opacity:1"
+       id="fork-badge-node-bottom"
+       cx="51.75"
+       cy="58.75"
+       r="2" />
+  </g>
 </svg>

@@ -11,17 +11,18 @@
     <!--[ Versions ]―――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
     <freecadmin>0.19.0</freecadmin>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <date>2026-11-26</date>
 
     <!--[ Info ]―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
-    <description>A FreeCAD workbench to estimate material quantity by volume or weight for selected parts</description>
-    <name>estimateWB</name>
+    <description>Fork of the Estimate workbench by error on line 1 - estimate material quantity by volume or weight for selected parts</description>
+    <name>estimateWB (fork)</name>
 
     <!--[ Tags ]―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――-->
 
     <tag>estimate</tag>
+    <tag>fork</tag>
     <tag>volume</tag>
     <tag>weight</tag>
 
@@ -79,7 +80,7 @@
         <workbench>
 
             <name>estimateWB</name>
-            <description>A FreeCAD workbench to estimate material quantity by volume or weight for selected parts</description>
+            <description>Fork of the Estimate workbench by error on line 1 - estimate material quantity by volume or weight for selected parts</description>
 
             <subdirectory>./</subdirectory>
             <classname>estimateWB</classname>
@@ -88,6 +89,7 @@
             <!--depend>match with pyproject.toml</depend-->
 
             <tag>estimate</tag>
+            <tag>fork</tag>
             <tag>volume</tag>
             <tag>weight</tag>
         

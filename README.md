@@ -32,6 +32,8 @@ The code avoids Python 3.9+ features and has a fallback for Qt5, but the dropdow
 This fork numbers its releases on its own, starting at 0.1.0 - fork 0.1.0 builds on upstream 0.1.5 and contains everything in it.
 
 #### This fork ([i-machine-things/estimateWB](https://github.com/i-machine-things/estimateWB), `custom` branch)
+* 0.1.3 (2026-11-26)
+    * **marked as a fork**: the Addon Manager lists this fork as *estimateWB (fork)* with a description naming the original, and the workbench icon carries a fork badge, so it can't be mistaken for the original Estimate workbench
 * 0.1.2 (2026-11-26)
     * no changes to the workbench, a version bump to check that the Addon Manager offers the update
 * 0.1.1 (2026-11-26)
