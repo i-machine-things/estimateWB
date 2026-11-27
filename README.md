@@ -32,6 +32,8 @@ The code avoids Python 3.9+ features and has a fallback for Qt5, but the dropdow
 This fork numbers its releases on its own, starting at 0.1.0 - fork 0.1.0 builds on upstream 0.1.5 and contains everything in it.
 
 #### This fork ([i-machine-things/estimateWB](https://github.com/i-machine-things/estimateWB), `custom` branch)
+* 0.1.2 (2026-11-26)
+    * no changes to the workbench, a version bump to check that the Addon Manager offers the update
 * 0.1.1 (2026-11-26)
     * **readme in the Addon Manager**: FreeCAD 1.1's Addon Manager shows this readme before the workbench is installed and can't render collapsible sections, which scrambled the version list and the install directions. They are plain sections now
     * **install directions**: the original installs into an *Estimate* folder, not *estimateWB*, but both contain the same Python package, so only one of them can load. The Addon Manager step now says how to tell the two *estimateWB* entries apart
