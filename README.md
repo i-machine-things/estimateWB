@@ -16,9 +16,6 @@ Common 3d-printing materials and a range of metals are supported by default, you
 
 ### Version compatibility
 
-<details>
-<summary>Confirmed with FreeCAD 26.3rc2 and 1.1.4 - Expand for more</summary>
-
 Tested with the current toolbar, preferences and units:
 * 26.3rc2 (Linux, Qt 6.11, Python 3.13) - all features
 * 1.1.4 (Linux Flatpak) - weight and volume results
@@ -30,8 +27,6 @@ Confirmed for 0.1.5, not yet tested since the toolbar rework:
 * 0.19
 
 The code avoids Python 3.9+ features and has a fallback for Qt5, but the dropdown buttons and the preferences page haven't been tried on these versions yet. Reports either way are welcome in [this fork's issue queue](https://github.com/i-machine-things/estimateWB/issues).
-
-</details>
 
 ### Version update
 This fork numbers its releases on its own, starting at 0.1.0 - fork 0.1.0 builds on upstream 0.1.5 and contains everything in it.
@@ -105,7 +100,7 @@ That's all. Basically the workbench reads the objects shape.volume-property prov
 
 ### Installation
 
-This fork is installed from its `custom` branch. If the original Estimate workbench is installed, uninstall it first: both install into the same `estimateWB` folder and Python package.
+This fork is installed from its `custom` branch. If the original Estimate workbench is installed, uninstall it first: the original installs into a folder named `Estimate` and this fork into `estimateWB`, but both contain the same `freecad.estimateWB` Python package, so FreeCAD can only load one of them.
 
 #### Addon Manager with a custom repository (recommended)
 
@@ -114,22 +109,14 @@ This fork is installed from its `custom` branch. If the original Estimate workbe
     * Repository URL: `https://github.com/i-machine-things/estimateWB`
     * Branch: `custom`
 3. Click *OK* to close the preferences
-4. Open *Tools → Addon manager*, refresh the list if the workbench doesn't show up yet, select **estimateWB** and click *Install*
+4. Open *Tools → Addon manager*, refresh the list if the workbench doesn't show up yet, select **estimateWB** and click *Install*. The original is listed under the same name, shown with version 0.1.5 by error on line 1, so pick the other one: FreeCAD 1.1 lists this fork without a version or description until it's installed
 5. Restart FreeCAD
 
 Updates then come through the Addon Manager like for any other addon.
 
-<details>
-<summary>FreeCAD 0.19 / 0.20</summary>
-
-Older versions set custom repositories in *Tools → Addon manager → Configure...* (not verified for this fork): add a line `https://github.com/i-machine-things/estimateWB custom` (URL, a space, then the branch) to the *Custom repositories* box, close the dialog and restart the Addon Manager.
-
-</details>
+**FreeCAD 0.19 / 0.20** set custom repositories in *Tools → Addon manager → Configure...* instead (not verified for this fork): add a line `https://github.com/i-machine-things/estimateWB custom` (URL, a space, then the branch) to the *Custom repositories* box, close the dialog and restart the Addon Manager.
 
 #### Manual Installation
-
-<details>
-<summary>Expand for directions to manually install this workbench</summary>
 
 Clone the `custom` branch into the personal FreeCAD `Mod` folder, e.g.
 
@@ -145,8 +132,6 @@ or download [the branch as a zip](https://github.com/i-machine-things/estimateWB
 - for macOS `~/Library/Preferences/FreeCAD/Mod/`
 
 FreeCAD 1.1 and newer keep a folder per version, so `Mod` sits one level deeper there, e.g. `~/.local/share/FreeCAD/v1-1/Mod/`. *Help → About FreeCAD → Copy to clipboard* shows the exact user data folder.
-
-</details>
 
 ### Customize
 
